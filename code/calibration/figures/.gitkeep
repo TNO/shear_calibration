@@ -1,0 +1,3 @@
+This file is needed to keep the directory empty and still under version control in git.
+
+This folder will be populated when the code is run locally. Since the results can be quickly regenerated and change, it was decided to not put the results under version control.
