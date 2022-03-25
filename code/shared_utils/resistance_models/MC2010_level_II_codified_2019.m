@@ -1,9 +1,11 @@
-% MC2010 level II shear resistance formula
+% MC2010 level II shear resistance formula.
 %
 % VR = MC2010_LEVEL_II_CODIFIED_2019(fc, Asl, b, d, dg, C_c, gamma_C)
 %
 % MIND THE UNITS! The formula is dimensionally inconsistent.
-% The implementation is based on `Model Code 2010. Final draft. September 2011`
+% The implementation is based on `Model Code 2010. Final draft. September
+% 2011`. We added the `C_c` parameter, it is not part of the MC2010 model
+% (`C_c = 1.0` leads to the codified MC2010 model).
 %
 %INPUT
 % fc        concrete compressive strength, [MPa]
@@ -48,17 +50,14 @@ for ii = 1:n
 end
 VR          = 1e-3 .* VR;
 
-% calculate max. allowable total design shear resistance in [kN], according to eq. (7.3-26):
-% vmin            = 0.035 .* (k.^1.5) .* (fc.^0.5);   % according to eq. (6.3N)
-% VRmin           = 1e-3 .* (vmin .* b .* d);
-% idx             = VR - VRmin < 0;
-% VR(idx)         = VRmin(idx);
-%
-% ID(idx)         = 2;
+
+% ..................................
+% Utility function
+% ..................................
 
     function e = epsx_fun(V, a, z, Asl)
-        % longitudinal strain is calculated at the mid-depth of the
-        % effective shear depth or core layer
+        % "longitudinal strain is calculated at the mid-depth of the
+        % effective shear depth or core layer"
         % based on eq. (7.3-16) and the accompanying text
         e = ((V * a / z) + V ) / (2 * Es * Asl);
         e(e > 0.003) = 0.003;
