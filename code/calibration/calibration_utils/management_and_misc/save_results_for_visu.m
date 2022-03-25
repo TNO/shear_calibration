@@ -32,22 +32,22 @@ switch lower(output)
         writetable(T, tpath)
         
     case 'alpha'
-        rvs  = {'C', 'f_{cck}', 'd', 'b', '\rho_{s}', 'G', 'KG', 'Q1', 'KQ1', 'Q2', 'KQ2', 'K_E'};
+        rvs  = {'C', 'f_cck', 'd', 'b', 'rho_s', 'G', 'KG', 'Q1', 'KQ1', 'Q2', 'KQ2', 'KE'};
         cols = length(rvs);
         rows = length(Results.alphas);
         
-        alpha2  = zeros(rows,cols);
+        alpha = zeros(rows,cols);
         
         % to be optimized: alphas_i currently not same length (due to
         % traffic load combi --> no Q2). 
         for i = 1:rows
-            alpha2_i      = (Results.alphas{i}.^2)';
-            n             = length(alpha2_i); 
-            alpha2(i,1:n) = alpha2_i;
-            
+            alpha_i       = (Results.alphas{i})';
+            n             = length(alpha_i); 
+            alpha(i,1:n) = alpha_i;
         end
         
-        alpha2_r     = reshape(alpha2,rows*cols,1);
+        alpha_r      = reshape(alpha,rows*cols,1);
+        alpha2_r     = alpha_r.^2;
         alpha_labels = reshape(repmat(rvs,rows,1),rows*cols,1);       
         
         load_comb_r = repmat(load_comb,cols,1);
@@ -58,7 +58,7 @@ switch lower(output)
         rho_r       = repmat(rho,cols,1);
         weight_r    = repmat(weight,cols,1);
 
-        T        = table(alpha2_r, alpha_labels, load_comb_r, d_r, f_cck_r, chi1_r, chi2_r, rho_r, weight_r);        
+        T        = table(alpha2_r, alpha_r, alpha_labels, load_comb_r, d_r, f_cck_r, chi1_r, chi2_r, rho_r, weight_r);        
        
 %         alpha2_C   = alpha2(:,1);
 %         alpha2_fcc = alpha2(:,2);
