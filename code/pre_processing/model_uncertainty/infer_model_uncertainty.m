@@ -21,9 +21,9 @@ addpath(genpath(to_path))
 % OPTIONS
 % =========================================================================
 
-model       = 'EC2 current';
+% model       = 'EC2 current';
 % model       = 'ec2-proposed';
-% model       = 'mc2010-current';
+model       = 'mc2010-current';
 
 consider_vrmin = false;
 % confidence level
@@ -50,7 +50,8 @@ fc          = fc;          % in [MPa], according to par. 7.2.3 (for our purpose,
 b           = bw;          % in [mm], width of the beam
 d           = d;           % in [mm], effective height
 rho         = rho/100;
-dg          = 16*ones(size(rho)); % note that this done as dg is fixed in the calibration!!
+% dg          = 16*ones(size(rho)); % note that this done as dg is fixed in the calibration!!
+dg          = dg;          % [mm]
 Asl         = rho.*b.*d;          % in [mm2], area of tensile reinforcement in considered section
 
 % =========================================================================
@@ -64,12 +65,12 @@ switch lower(model)
         shear_formula     = @(fc, Asl, b, d, C_c, gamma_C) EC2_proposed_Yuguang_2019(fc, Asl, b, d, C_c, gamma_C);
 %         shear_formula     = @(fc, Asl, b, d, C_c, gamma_C) EC2_proposed_TG4_2016(fc, Asl, b, d, C_c, gamma_C);
     case 'mc2010-current'
-        shear_formula     = @(fc, Asl, b, d, C_c, gamma_C) MC2010_level_II_codified_2019(fc, Asl, b, d, C_c, gamma_C);
+        shear_formula     = @(fc, Asl, b, d, dg, C_c, gamma_C) MC2010_level_II_codified_2019(fc, Asl, b, d, dg, C_c, gamma_C);
     otherwise
         error('Unknown model.')
 end
 
-V_Rmodel                = shear_formula(fc, Asl, b, d, 1, 1);
+V_Rmodel                = shear_formula(fc, Asl, b, d, dg, 1, 1);
 kappa                   = V_Rexp./V_Rmodel;
 
 % simplified 
@@ -77,7 +78,7 @@ kappa                   = V_Rexp./V_Rmodel;
 [c_mean, c_cov]         = lognormstat(cpar(1), cpar(2), 'par');
 
 C_c                     = c_mean;
-V_Rmod                  = shear_formula(fc, Asl, b, d, C_c, gamma_C);
+V_Rmod                  = shear_formula(fc, Asl, b, d, dg, C_c, gamma_C);
 
 % check if the MLE estimate
 mu_mle = mean(log(kappa));
