@@ -21,7 +21,6 @@ function [Prob, DS] = gen_DS(free_par, Prob, Prob_actions, DS, Options)
 %--------------------------------------------------------------------------
 verbose         = Options.verbose;
 
-consider_VRmin  = Options.consider_VRmin;
 load_combs      = Options.load_combs;
 n_lc            = length(load_combs);
 
