@@ -96,7 +96,9 @@ for ii = 1:n_rv
     if isfield(X, 'mean2repr')
         [~, X] = X.mean2repr(X.mean, X);
     else
-        X.repr = NaN;
+        if ~isfield(X, 'repr')
+            X.repr = NaN;
+        end
     end
 
     Prob.(name)     = X;

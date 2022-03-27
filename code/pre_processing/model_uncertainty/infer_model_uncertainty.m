@@ -53,6 +53,8 @@ rho         = rho/100;
 dg          = 16*ones(size(rho)); % note that this done as dg is fixed in the calibration!!
 Asl         = rho.*b.*d;          % in [mm2], area of tensile reinforcement in considered section
 
+boolean_string = {'false', 'true'};
+
 % =========================================================================
 % ESTIMATE parameters
 % =========================================================================
@@ -69,7 +71,7 @@ switch lower(model)
         error('Unknown model.')
 end
 
-V_Rmodel                = shear_formula(fc, Asl, b, d, 1, 1);
+[V_Rmodel, ID]          = shear_formula(fc, Asl, b, d, 1, 1);
 kappa                   = V_Rexp./V_Rmodel;
 
 % simplified 
@@ -85,6 +87,9 @@ std_mle = std(log(kappa), 1);
 if abs(mu_mle - cpar(1)) > 1e-4 || abs(std_mle - cpar(2)) > 1e-4
     error('The maximum likelihood estimate is wrong or inaccurate.')
 end
+
+disp(['Consider VRmin in resistance model?: ', boolean_string{consider_vrmin+1}])
+disp(['Number of experiments for which VRmin is governing: ', num2str(sum(ID==2))])
 
 disp('Model uncertainty maximum likelihood estimate, C_c')
 disp(['     mean of C_c : ', sprintf('%.4f', c_mean)])
@@ -147,7 +152,8 @@ prettify(gcf)
 if save_fig == 1
     fwidth  = 10;
     fheight = 10;
-    fpath   = ['./results/',model,'_exp_mod_diff'];
+    fpath   = ['./results/',model,...
+        '_exp_mod_diff_with_vrmin=', boolean_string{consider_vrmin+1}];
     figuresize(fwidth , fheight , 'cm')
     export_fig(fpath, '-png', '-m2.5')
 end
@@ -240,7 +246,8 @@ sgtitle([main_title, '; confidence level: ', num2str(ci)], 'Interpreter', 'LaTeX
 if save_fig == 1
     fwidth  = 18;
     fheight = 8;
-    fpath   = ['./results/',model,'_exp_vs_pred'];
+    fpath   = ['./results/',model,...
+        '_exp_vs_pred_with_vrmin=', boolean_string{consider_vrmin+1}];
     figuresize(fwidth , fheight , 'cm')
     export_fig(fpath, '-png', '-m2.5')
 end
@@ -303,7 +310,8 @@ sgtitle(main_title, 'Interpreter', 'LaTeX', 'FontSize', sgtitle_fontsize)
 if save_fig == 1
     fwidth = 18;
     fheight = 8;
-    fpath   = ['./results/',model,'_resi_and_C_histogram'];
+    fpath   = ['./results/',model,...
+        '_resi_and_C_histogram_with_vrmin=', boolean_string{consider_vrmin+1}];
     figuresize(fwidth , fheight , 'cm')
     export_fig(fpath, '-png', '-m2.5')
 end

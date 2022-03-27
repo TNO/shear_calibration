@@ -25,6 +25,9 @@ cellfun(@(x) addpath(genpath(x)), to_path)
 % 'mc2010_level_ii_codified_2019', 'mc2010_new'
 Options.resistance_model    = 'ec2_codified_2019';
 
+Options.consider_VRmin      = true;
+% Options.consider_VRmin      = false;
+
 % .........................................................................
 % Only to get the design scenarios; not used in the reli calculations
 % Load combination rule/formula: 
@@ -63,7 +66,7 @@ Prob_actions                = update_Prob(Prob_actions, Options.verbose);
 % CALIBRATE
 %--------------------------------------------------------------------------
 tic
-[calibr_par, objfun_val, exitflag] = calibrate_Ck(Prob, Prob_actions, DS, Options);
+[calibr_par, objfun_val, exitflag] = calibrate_theta_Rk(Prob, Prob_actions, DS, Options);
 toc
 disp('calibr_par')
 disp(calibr_par)
