@@ -27,6 +27,9 @@ Options.resistance_model    = 'ec2_codified_2019';
 % Options.resistance_model    = 'ec2_proposed_yuguang_2019';
 % Options.resistance_model    = 'ec2_new';
 
+Options.consider_VRmin      = true;
+% Options.consider_VRmin      = false;
+
 % Load combination rule/formula
 % 'ec2_simple', 'ec2_advanced'
 Options.load_combination    = 'ec2_simple';

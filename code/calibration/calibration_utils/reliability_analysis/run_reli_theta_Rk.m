@@ -1,23 +1,23 @@
 % Reliability analysis FERUM::FORM
 %
 %SYNOPSYS
-% [beta, formresults, probdata] = RUN_RELI(Prob, Options)
+% [beta, formresults, probdata] = RUN_RELI_THETA_RK(Prob, Options)
 %
 %
 
 %NOTES:
 % - vectorized g_fun calls
 
-function [beta, formresults, probdata] = run_reli_Ck(Prob, Options)
+function [beta, formresults, probdata] = run_reli_theta_Rk(Prob, Options)
 
 % =========================================================================
 % INPUT DATA
 % =========================================================================
 
 resistance_model            = Options.resistance_model;
-load_combination            = Options.load_combination;
+consider_VRmin              = Options.consider_VRmin;
 
-rv_order                    = {'C', 'f_cc', 'd', 'b', 'Asl'};    
+rv_order                    = {'theta_R', 'f_cc', 'd', 'b', 'Asl'};    
 Prob                        = orderfields(Prob, rv_order);
 
 var_names                   = fieldnames(Prob);
@@ -72,7 +72,7 @@ end
 % Auxiliary variables
 % .........................................................................
 % representative value of shear resistance
-C                   = Prob.C.in_standardized_equation;
+theta_R             = Prob.theta_R.repr;
 f_cc                = Prob.f_cc.repr;
 d                   = Prob.d.repr;
 b                   = Prob.b.repr;
@@ -80,21 +80,21 @@ Asl                 = Prob.Asl.repr;
 
 switch lower(resistance_model)
     case 'ec2_codified_2019'
-        gamma_C = 1;
-        VR      = EC2_codified_2019(f_cc, Asl, b, d, C, gamma_C);
+        gamma_R = 1;
+        VR      = EC2_codified_2019(f_cc, Asl, b, d, theta_R, gamma_R, consider_VRmin);
     case 'ec2_new'
         gamma_M = 1;
         gamma_C = 1;
-        VR      = EC2_new(f_cc, Asl, b, d, C, gamma_M, gamma_C);
+        VR      = EC2_new(f_cc, Asl, b, d, theta_R, gamma_M, gamma_C);
     case 'ec2_proposed_tg4_2016'
         gamma_C = 1;
-        VR      = EC2_proposed_TG4_2016(f_cc, Asl, b, d, C, gamma_C);
+        VR      = EC2_proposed_TG4_2016(f_cc, Asl, b, d, theta_R, gamma_C);
     case 'ec2_proposed_yuguang_2019'
         gamma_C = 1;
-        VR      = EC2_proposed_Yuguang_2019(f_cc, Asl, b, d, C, gamma_C);
+        VR      = EC2_proposed_Yuguang_2019(f_cc, Asl, b, d, theta_R, gamma_C);
     case 'mc2010_level_ii_codified_2019'
         gamma_C = 1;
-        VR      = MC2010_level_II_codified_2019(f_cc, Asl, b, d, C, gamma_C);  
+        VR      = MC2010_level_II_codified_2019(f_cc, Asl, b, d, theta_R, gamma_C);  
     case 'mc2010_new'
         % to be fixed later
 %         gamma_M = 1;
@@ -110,8 +110,11 @@ marg(n_var+1,:)                 = [0,  V_Rc_repr,  0,  V_Rc_repr,  NaN,  NaN,  N
 resi_model                      = translate_model(resistance_model);
 marg(n_var+2,:)                 = [0,  resi_model,  0,  resi_model,  NaN,  NaN,  NaN,  NaN, 0];
 
-probdata.name                   = {probdata.name{:}, 'V_Rc_repr', 'resi_model'}; 
-n_var                           = n_var + 2;
+% option for the resistance formula
+marg(n_var+3,:)                 = [0,  consider_VRmin,  0,  consider_VRmin,  NaN,  NaN,  NaN,  NaN, 0];
+
+probdata.name                   = {probdata.name{:}, 'V_Rc_repr', 'resi_model', 'consider_VRmin'}; 
+n_var                           = n_var + 3;
 
 probdata.marg                   = marg;
 
@@ -190,7 +193,7 @@ gfundata(1).type                = 'expression';   % Do not change this field!
 arg                             = sprintf('%s,', probdata.name{:});
 arg(end)                        = [];
 
-gfundata(1).expression          = ['g_fun_Ck(',arg, ')'];
+gfundata(1).expression          = ['g_fun_theta_Rk(',arg, ')'];
 
 
 gfundata(1).thetag              =  [];

@@ -32,7 +32,7 @@ switch lower(output)
         writetable(T, tpath)
         
     case 'alpha'
-        rvs  = {'C', 'f_cck', 'd', 'b', 'rho_s', 'G', 'KG', 'Q1', 'KQ1', 'Q2', 'KQ2', 'KE'};
+        rvs  = {'theta_R', 'f_cck', 'd', 'b', 'rho_s', 'G', 'theta_G', 'Q1', 'theta_Q1', 'Q2', 'theta_Q2', 'theta_E'};
         cols = length(rvs);
         rows = length(Results.alphas);
         

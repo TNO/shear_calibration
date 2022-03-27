@@ -17,7 +17,7 @@ load_combination    = Options.load_combination;
 chi1                = fix_par(1);
 chi2                = fix_par(2);
 
-C                   = Prob.C.in_standardized_equation;
+theta_R             = Prob.theta_R.repr;
 f_cc                = Prob.f_cc.repr;
 d                   = Prob.d.repr;
 b                   = Prob.b.repr;
@@ -67,8 +67,8 @@ psi02               = Prob.psi02.mean;
 % -------------------------------------------------------------------------
 switch lower(resistance_model)
     case 'ec2_codified_2019'
-        gamma_C = free_par(1);
-        VR      = EC2_codified_2019(f_cc, Asl, b, d, C, gamma_C);
+        gamma_R = free_par(1);
+        VR      = EC2_codified_2019(f_cc, Asl, b, d, theta_R, gamma_R);
     case 'ec2_new'
         gamma_C = 1.5;
         gamma_M = free_par(1);
