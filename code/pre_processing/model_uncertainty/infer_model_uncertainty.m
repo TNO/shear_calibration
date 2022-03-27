@@ -1,7 +1,7 @@
-% Estimate the model uncertainty (C_c) of a selected shear resistance formula.
+% Estimate the model uncertainty (theta_R) of a selected shear resistance formula.
 %
-% kappa = V_Rexp./V_Rmodel
-% kappa is assuemed to be lognormally distributed
+% theta_R = V_Rexp./V_Rmodel
+% theta_R is assumed to be lognormally distributed
 % the parameters of the lognormal distribution are estimated using the maximum
 % likelihood method
 %
@@ -25,7 +25,7 @@ addpath(genpath(to_path))
 % model       = 'ec2-proposed';
 model       = 'mc2010-current';
 
-consider_vrmin = false;
+consider_VRmin = true;
 % confidence level
 ci          = 0.95;
 
@@ -45,7 +45,7 @@ fpath       = ['..\..\..\data\', fmat];
 load(fpath);
 
 V_Rexp      = Vu;
-gamma_C     = 1.0;         % the partial safety factor for concrete is 1.5 (for our purpose, it is excluded!)
+gamma_R     = 1.0;         % model uncertainty partial factor
 fc          = fc;          % in [MPa], according to par. 7.2.3 (for our purpose, we use the fc;test value; otherwise: fck = fcmean - 8)
 b           = bw;          % in [mm], width of the beam
 d           = d;           % in [mm], effective height
@@ -54,42 +54,48 @@ rho         = rho/100;
 dg          = dg;          % [mm]
 Asl         = rho.*b.*d;          % in [mm2], area of tensile reinforcement in considered section
 
+boolean_string = {'false', 'true'};
+
 % =========================================================================
 % ESTIMATE parameters
 % =========================================================================
 % multiplicative error
 switch lower(model)
     case 'ec2 current'
-        shear_formula     = @(fc, Asl, b, d, C_c, gamma_C) EC2_codified_2019(fc, Asl, b, d, C_c, gamma_C, consider_vrmin);
+        shear_formula     = @(fc, Asl, b, d, theta_R, gamma_R) EC2_codified_2019(fc, Asl, b, d, theta_R, gamma_R, consider_VRmin);
     case 'ec2-proposed'
         shear_formula     = @(fc, Asl, b, d, C_c, gamma_C) EC2_proposed_Yuguang_2019(fc, Asl, b, d, C_c, gamma_C);
 %         shear_formula     = @(fc, Asl, b, d, C_c, gamma_C) EC2_proposed_TG4_2016(fc, Asl, b, d, C_c, gamma_C);
     case 'mc2010-current'
-        shear_formula     = @(fc, Asl, b, d, dg, C_c, gamma_C) MC2010_level_II_codified_2019(fc, Asl, b, d, dg, C_c, gamma_C);
+        shear_formula     = @(fc, Asl, b, d, dg, theta_R, gamma_R) MC2010_level_II_codified_2019(fc, Asl, b, d, dg, theta_R, gamma_R);
     otherwise
         error('Unknown model.')
 end
 
 V_Rmodel                = shear_formula(fc, Asl, b, d, dg, 1, 1);
+% [V_Rmodel, ID]          = shear_formula(fc, Asl, b, d, 1, 1);
 kappa                   = V_Rexp./V_Rmodel;
 
 % simplified 
-[cpar, min_nLL]         = fit_lognorm2_mle(kappa, 'par');
-[c_mean, c_cov]         = lognormstat(cpar(1), cpar(2), 'par');
+[tr_par, min_nLL]       = fit_lognorm2_mle(kappa, 'par');
+[tr_mean, tr_cov]       = lognormstat(tr_par(1), tr_par(2), 'par');
 
-C_c                     = c_mean;
-V_Rmod                  = shear_formula(fc, Asl, b, d, dg, C_c, gamma_C);
+theta_R                 = tr_mean;
+V_Rmod                  = shear_formula(fc, Asl, b, d, dg, theta_R, gamma_R);
 
 % check if the MLE estimate
 mu_mle = mean(log(kappa));
 std_mle = std(log(kappa), 1);
-if abs(mu_mle - cpar(1)) > 1e-4 || abs(std_mle - cpar(2)) > 1e-4
+if abs(mu_mle - tr_par(1)) > 1e-4 || abs(std_mle - tr_par(2)) > 1e-4
     error('The maximum likelihood estimate is wrong or inaccurate.')
 end
 
-disp('Model uncertainty maximum likelihood estimate, C_c')
-disp(['     mean of C_c : ', sprintf('%.4f', c_mean)])
-disp(['     cov of C_c  : ', sprintf('%.4f', c_cov)])
+disp(['Consider VRmin in resistance model?: ', boolean_string{consider_VRmin+1}])
+% disp(['Number of experiments for which VRmin is governing: ', num2str(sum(ID==2))])
+
+disp('Model uncertainty maximum likelihood estimate, theta_R')
+disp(['     mean of theta_R : ', sprintf('%.5f', tr_mean)])
+disp(['     cov of theta_R  : ', sprintf('%.5f', tr_cov)])
 fprintf('\n')
 
 % -------------------------------------------------------------------------
@@ -148,7 +154,8 @@ prettify(gcf)
 if save_fig == 1
     fwidth  = 10;
     fheight = 10;
-    fpath   = ['./results/',model,'_exp_mod_diff'];
+    fpath   = ['./results/',model,...
+        '_exp_mod_diff_with_vrmin=', boolean_string{consider_VRmin+1}];
     figuresize(fwidth , fheight , 'cm')
     export_fig(fpath, '-png', '-m2.5')
 end
@@ -178,9 +185,9 @@ hs.SizeData         = sizedata;
 VV          = [V_Rmod(:); V_Rexp(:)];
 xx          = linspace(min(VV), max(VV), 1e2);
 plot(xx, xx, 'black-.')
-mm          = C_c;
-mu          = lognorminv((1+ci)/2, C_c, c_cov)/C_c;
-ml          = lognorminv((1-ci)/2, C_c, c_cov)/C_c;
+mm          = theta_R;
+mu          = lognorminv((1+ci)/2, theta_R, tr_cov)/theta_R;
+ml          = lognorminv((1-ci)/2, theta_R, tr_cov)/theta_R;
 
 plot(xx, xx*mu, 'black--')
 plot(xx, xx*ml, 'black--')
@@ -215,9 +222,9 @@ hs.SizeData         = sizedata;
 VV          = [V_Rmod(:); V_Rexp(:)];
 xx          = linspace(min(VV), max(VV), 1e2);
 plot(xx, xx, 'black')
-mm          = C_c;
-mu          = lognorminv((1+ci)/2, C_c, c_cov)/C_c;
-ml          = lognorminv((1-ci)/2, C_c, c_cov)/C_c;
+mm          = theta_R;
+mu          = lognorminv((1+ci)/2, theta_R, tr_cov)/theta_R;
+ml          = lognorminv((1-ci)/2, theta_R, tr_cov)/theta_R;
 
 plot(xx, xx*mu, 'black--')
 plot(xx, xx*ml, 'black--')
@@ -241,7 +248,8 @@ sgtitle([main_title, '; confidence level: ', num2str(ci)], 'Interpreter', 'LaTeX
 if save_fig == 1
     fwidth  = 18;
     fheight = 8;
-    fpath   = ['./results/',model,'_exp_vs_pred'];
+    fpath   = ['./results/',model,...
+        '_exp_vs_pred_with_vrmin=', boolean_string{consider_VRmin+1}];
     figuresize(fwidth , fheight , 'cm')
     export_fig(fpath, '-png', '-m2.5')
 end
@@ -289,12 +297,12 @@ hb.EdgeColor        = 1*ones(1,3);
 
 hold on
 xx = linspace(min(cc), max(cc), 1e2);
-yy = lognormpdf(xx, c_mean, c_cov);
+yy = lognormpdf(xx, tr_mean, tr_cov);
 plot(xx, yy, 'black', 'LineWidth', 1)
 
 box off
 set(gca,'YColor',[1 1 1]);
-xlabel('$C_\mathrm{R,c}$ [-]')
+xlabel('$\theta_\mathrm{R}$ [-]')
 % title(main_title)
 prettify(gcf)
 
@@ -304,7 +312,8 @@ sgtitle(main_title, 'Interpreter', 'LaTeX', 'FontSize', sgtitle_fontsize)
 if save_fig == 1
     fwidth = 18;
     fheight = 8;
-    fpath   = ['./results/',model,'_resi_and_C_histogram'];
+    fpath   = ['./results/',model,...
+        '_resi_and_C_histogram_with_vrmin=', boolean_string{consider_VRmin+1}];
     figuresize(fwidth , fheight , 'cm')
     export_fig(fpath, '-png', '-m2.5')
 end

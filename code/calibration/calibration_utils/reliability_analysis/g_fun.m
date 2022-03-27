@@ -9,7 +9,7 @@
 %OUTPUT
 % g     performance function value
 
-function g = g_fun(C, f_cc, d, b, Asl, G, K_G, ksi, Q1, K_Q1, psi01, Q2, K_Q2, psi02, K_E, resi_model, load_comb)
+function g = g_fun(theta_R, f_cc, d, b, Asl, G, K_G, ksi, Q1, K_Q1, psi01, Q2, K_Q2, psi02, K_E, resi_model, load_comb, consider_VRmin)
 
 % =========================================================================
 %  PRE-PROCESSING
@@ -25,21 +25,21 @@ load_combination = translate_model(load_comb);
 % -------------------------------------------------------------------------
 switch lower(resistance_model)
     case 'ec2_codified_2019'
-        gamma_C = 1;
-        VR      = EC2_codified_2019(f_cc, Asl, b, d, C, gamma_C);
+        gamma_R = 1;
+        VR      = EC2_codified_2019(f_cc, Asl, b, d, theta_R, gamma_R, consider_VRmin);
     case 'ec2_new'
         gamma_M = 1;
         gamma_C = 1;
-        VR      = EC2_new(f_cc, Asl, b, d, C, gamma_M, gamma_C);
+        VR      = EC2_new(f_cc, Asl, b, d, theta_R, gamma_M, gamma_C);
     case 'ec2_proposed_tg4_2016'
         gamma_C = 1;
-        VR      = EC2_proposed_TG4_2016(f_cc, Asl, b, d, C, gamma_C);
+        VR      = EC2_proposed_TG4_2016(f_cc, Asl, b, d, theta_R, gamma_C);
     case 'ec2_proposed_yuguang_2019'
         gamma_C = 1;
-        VR      = EC2_proposed_Yuguang_2019(f_cc, Asl, b, d, C, gamma_C);
+        VR      = EC2_proposed_Yuguang_2019(f_cc, Asl, b, d, theta_R, gamma_C);
     case 'mc2010_level_ii_codified_2019'
         gamma_C = 1;
-        VR      = MC2010_level_II_codified_2019(f_cc, Asl, b, d, C, gamma_C);  
+        VR      = MC2010_level_II_codified_2019(f_cc, Asl, b, d, theta_R, gamma_C);  
     case 'mc2010_new'
         % to be fixed later
 %         gamma_M = 1;

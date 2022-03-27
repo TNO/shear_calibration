@@ -9,7 +9,7 @@
 %OUTPUT
 % g     performance function value
 
-function g = g_fun_Ck(C, f_cc, d, b, Asl, V_Rc_repr, resi_model)
+function g = g_fun_theta_Rk(theta_R, f_cc, d, b, Asl, V_Rc_repr, resi_model, consider_VRmin)
 
 % =========================================================================
 %  PRE-PROCESSING
@@ -24,8 +24,8 @@ resistance_model = translate_model(resi_model);
 % -------------------------------------------------------------------------
 switch lower(resistance_model)
     case 'ec2_codified_2019'
-        gamma_C = 1;
-        VR      = EC2_codified_2019(f_cc, Asl, b, d, C, gamma_C);
+        gamma_R = 1;
+        VR      = EC2_codified_2019(f_cc, Asl, b, d, theta_R, gamma_R, consider_VRmin);
     case 'ec2_new'
         gamma_M = 1;
         gamma_C = 1;

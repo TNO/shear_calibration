@@ -25,6 +25,9 @@ cellfun(@(x) addpath(genpath(x)), to_path)
 % 'mc2010_level_ii_codified_2019', 'mc2010_new'
 Options.resistance_model    = 'ec2_codified_2019';
 
+Options.consider_VRmin      = true;
+% Options.consider_VRmin      = false;
+
 % .........................................................................
 % Only to get the design scenarios; not used in the reli calculations
 % Load combination rule/formula: 
@@ -45,6 +48,8 @@ Options.load_comb_weights   = [1, 1, 1, 1];
 data_dir                    = '../../data/';
 % Weights for design scenarios (comment or uncomment)
 Options.weights_filepath    = fullfile(data_dir, 'load_comb_prevalence_weights.xlsx');
+
+Options.K_FI_repr           = 1.0;
 % .........................................................................
 
 % Target reliability
@@ -63,10 +68,11 @@ Prob_actions                = update_Prob(Prob_actions, Options.verbose);
 % CALIBRATE
 %--------------------------------------------------------------------------
 tic
-[calibr_par, objfun_val, exitflag] = calibrate_Ck(Prob, Prob_actions, DS, Options);
+[calibr_par, objfun_val, exitflag] = calibrate_theta_Rk(Prob, Prob_actions, DS, Options);
 toc
-disp('calibr_par')
-disp(calibr_par)
+disp(['calibrated theta_R_repr (P=',...
+    sprintf('%.2f', Options.P_repr_target), '): ',...
+    sprintf('%.5f', calibr_par)])
 
 %--------------------------------------------------------------------------
 % CLEAN UP
