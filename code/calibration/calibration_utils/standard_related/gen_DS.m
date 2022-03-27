@@ -59,7 +59,7 @@ for ii = 1:n_lc
     
     loc1 = size(combis,1) + 1;
     loc2 = loc1 + size(combis_ii,1) - 1;
-    load_combs_all(loc1:loc2) = {load_combs{ii}};
+    load_combs_all(loc1:loc2) = load_combs(ii);
     
     combis   = [combis; combis_ii];
     weights  = [weights; weights_ii];  

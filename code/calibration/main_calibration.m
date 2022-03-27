@@ -51,16 +51,16 @@ Options.weights_filepath    = fullfile(data_dir, 'load_comb_prevalence_weights.x
 
 % Target reliability
 % Options.beta_target         = 4.2;
-% Options.beta_target         = 4.7;
-Options.beta_target         = 5.2;
+Options.beta_target         = 4.7;
+% Options.beta_target         = 5.2;
 
 % EN 1990, Table B3; action scaler in semi-probabilistic design
 % RC1: beta_target = 4.2; K_FI_repr = 0.9
 % RC2: beta_target = 4.7; K_FI_repr = 1.0
 % RC3: beta_target = 5.2; K_FI_repr = 1.1
 % Options.K_FI_repr           = 0.9;
-% Options.K_FI_repr           = 1.0;
-Options.K_FI_repr           = 1.1;
+Options.K_FI_repr           = 1.0;
+% Options.K_FI_repr           = 1.1;
 
 Options.verbose             = 1;
 

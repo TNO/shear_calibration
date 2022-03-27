@@ -83,7 +83,7 @@ marg(n_var+2,:)                 = [0,  load_comb,  0,  load_comb,  NaN,  NaN,  N
 % option for the resistance formula
 marg(n_var+3,:)                 = [0,  consider_VRmin,  0,  consider_VRmin,  NaN,  NaN,  NaN,  NaN, 0];
 
-probdata.name                   = {probdata.name{:}, 'resi_model', 'load_comb', 'consider_VRmin'}'; 
+probdata.name                   = [probdata.name(:)', {'resi_model'}, {'load_comb'}, {'consider_VRmin'}]'; 
 n_var                           = n_var + 3;
 
 probdata.marg                   = marg;

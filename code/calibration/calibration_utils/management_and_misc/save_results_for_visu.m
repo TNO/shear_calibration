@@ -5,7 +5,7 @@
 
 function save_results_for_visu(fname, output)
 
-load(['./results/', fname, '.mat'], 'Options', 'Results', 'DS')
+load(['./results/', fname, '.mat'], 'Results', 'DS')
 
 % create all possible combinations for the design scenarios
 combis          = DS.combis;
