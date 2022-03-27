@@ -38,7 +38,7 @@ for ii = 1:n_rv
         X.std = NaN;
     end
     if X.dist == 32
-        load(['tmp\vector_distr_', num2str(X.dist_ID), '.mat'], 'x_grid', 'pdf', 'cdf')
+        load(['tmp\vector_distr_', num2str(X.dist_ID), '.mat'], 'x_grid', 'pdf')
 
         X.mean      = trapz(x_grid, pdf.*x_grid);
         X.std       = sqrt(trapz(x_grid, pdf.*(x_grid-X.mean).^2));

@@ -112,15 +112,15 @@ end
 switch lower(resistance_model)
     case 'ec2_codified_2019'
         if consider_VRmin
-            Prob.theta_R.mean   = 1.1369;
-            Prob.theta_R.cov    = 0.2378;
+            Prob.theta_R.mean   = 1.13688;
+            Prob.theta_R.cov    = 0.23777;
 %             Prob.theta_R.repr   = 1.0; % codified value
-            Prob.theta_R.repr   = 0.8170; % to obtain characteristics value (5%) for V_Rc
+            Prob.theta_R.repr   = 0.81707; % to obtain characteristics value (5%) for V_Rc
         else
-            Prob.theta_R.mean   = 1.1375;
-            Prob.theta_R.cov    = 0.2376;
+            Prob.theta_R.mean   = 1.13750;
+            Prob.theta_R.cov    = 0.23760;
 %             Prob.theta_R.repr   = 1.0; % codified value
-            Prob.theta_R.repr   = 0.8178; % to obtain characteristics value (5%) for V_Rc
+            Prob.theta_R.repr   = 0.81776; % to obtain characteristics value (5%) for V_Rc
         end
         
         Prob.theta_R.std    = NaN;

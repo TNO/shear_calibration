@@ -13,6 +13,8 @@ function Prob = inv_design(free_par, fix_par, Prob, Prob_actions, Options, load_
 % -------------------------------------------------------------------------
 resistance_model    = Options.resistance_model;
 load_combination    = Options.load_combination;
+consider_VRmin      = Options.consider_VRmin;
+K_FI_repr           = Options.K_FI_repr;
 
 chi1                = fix_par(1);
 chi2                = fix_par(2);
@@ -68,7 +70,7 @@ psi02               = Prob.psi02.mean;
 switch lower(resistance_model)
     case 'ec2_codified_2019'
         gamma_R = free_par(1);
-        VR      = EC2_codified_2019(f_cc, Asl, b, d, theta_R, gamma_R);
+        VR      = EC2_codified_2019(f_cc, Asl, b, d, theta_R, gamma_R, consider_VRmin);
     case 'ec2_new'
         gamma_C = 1.5;
         gamma_M = free_par(1);
@@ -110,7 +112,7 @@ end
 % Design
 % -------------------------------------------------------------------------
 % full utilization, E_d = R_d
-G_k             = fzero(@(x) VR - VE(x), 30);
+G_k             = fzero(@(x) VR - K_FI_repr * VE(x), 30);
 Q1_k            = G_k*chi1/(1-chi1);
 Q2_k            = G_k*chi2/(1-chi2);
 

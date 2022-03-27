@@ -35,24 +35,26 @@ parfor ii = 1:n_ds
     flag_form(ii)          = formresults.flag;
 end
 
+% Commmented out because we do not have non-converged analyses and 
+% `run_reli_subsetsim` is not harmonized with the rest of the code.
 % for non-converged FORM analyses, do subset simulation
 % nb: the reason FORM do not converge is because it is jumping between two
 %     points as a result of the v_min check in EC2 shear formula
-if sum(flag_form) < n_ds
-    nonconvFORM = find(~flag_form);
-    n_ds_FORM   = length(nonconvFORM);
-    beta_FORM   = beta(nonconvFORM);
-    print(['Number of non-converged FORM analyses: ', num2str(n_ds_FORM)])
-    for ii = 1:n_ds_FORM
-    %parfor ii = 1:n_ds_FORM
-        ds_num                                  = nonconvFORM(ii);
-        Prob_ii                                 = Prob(ds_num);
-        [beta(ds_num), subsetsimulationresults] = run_reli_subsetsim(Prob_ii, Options);
-        alphas{ds_num}                          = {};
-    end
-    beta_SS     = beta(nonconvFORM);
-%     beta_FORM - beta_SS
-end
+% if sum(flag_form) < n_ds
+%     nonconvFORM = find(~flag_form);
+%     n_ds_FORM   = length(nonconvFORM);
+% %     beta_FORM   = beta(nonconvFORM);
+%     print(['Number of non-converged FORM analyses: ', num2str(n_ds_FORM)])
+%     for ii = 1:n_ds_FORM
+%     %parfor ii = 1:n_ds_FORM
+%         ds_num                                  = nonconvFORM(ii);
+%         Prob_ii                                 = Prob(ds_num);
+%         [beta(ds_num), ~] = run_reli_subsetsim(Prob_ii, Options);
+%         alphas{ds_num}                          = {};
+%     end
+% %     beta_SS     = beta(nonconvFORM);
+% %     beta_FORM - beta_SS
+% end
 
 
 % -------------------------------------------------------------------------
