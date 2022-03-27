@@ -48,6 +48,8 @@ Options.load_comb_weights   = [1, 1, 1, 1];
 data_dir                    = '../../data/';
 % Weights for design scenarios (comment or uncomment)
 Options.weights_filepath    = fullfile(data_dir, 'load_comb_prevalence_weights.xlsx');
+
+Options.K_FI_repr           = 1.0;
 % .........................................................................
 
 % Target reliability
@@ -68,8 +70,9 @@ Prob_actions                = update_Prob(Prob_actions, Options.verbose);
 tic
 [calibr_par, objfun_val, exitflag] = calibrate_theta_Rk(Prob, Prob_actions, DS, Options);
 toc
-disp('calibr_par')
-disp(calibr_par)
+disp(['calibrated theta_R_repr (P=',...
+    sprintf('%.2f', Options.P_repr_target), '): ',...
+    sprintf('%.5f', calibr_par)])
 
 %--------------------------------------------------------------------------
 % CLEAN UP
