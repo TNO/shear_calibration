@@ -26,7 +26,7 @@ b                   = Prob.b.repr;
 Asl                 = Prob.Asl.repr;
 
 d_lower             = Prob.d_lower.repr;
-a_to_d_ratio        = Prob.d_lower.repr;
+a_to_d_ratio        = Prob.a_to_d_ratio.repr;
 
 gamma_G             = Prob.G.gamma;
 ksi                 = Prob.ksi.mean;
