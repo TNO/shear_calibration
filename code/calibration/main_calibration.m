@@ -99,7 +99,7 @@ for i = 1:length(output)
 end
 
 % quick diagnostic plot
-quick_visual_results(Results, Options.beta_target, sprintf('calibrated, gamma_C=%.3f', calibr_par))
+quick_visual_results(Results, Options.beta_target, sprintf('calibrated, gamma_R=%.3f', calibr_par))
 
 % .........................................................................
 % reference with current partial factor
@@ -120,7 +120,7 @@ for i = 1:length(output)
 end
 
 % quick diagnostic plot
-quick_visual_results(Results, Options.beta_target, sprintf('reference, gamma_C=%.3f', calibr_par))
+quick_visual_results(Results, Options.beta_target, sprintf('reference, gamma_R=%.3f', calibr_par))
 
 %--------------------------------------------------------------------------
 % CLEAN UP
