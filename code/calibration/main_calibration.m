@@ -31,14 +31,14 @@ Options.consider_VRmin      = true;
 % Options.consider_VRmin      = false;
 
 % Load combination rule/formula
-% 'ec2_simple', 'ec2_advanced'
-Options.load_combination    = 'ec2_simple';
-% Options.load_combination    = 'ec2_advanced';
+% 'ec0_simple', 'ec0_advanced'
+Options.load_combination    = 'ec0_simple';
+% Options.load_combination    = 'ec0_advanced';
 
 % Variable load sets (#load comb would be more descriptive
 % 'traffic', 'snow-wind', 'snow-imposed', 'wind-imposed'
 Options.load_combs          = {'traffic', 'snow_wind', 'snow_imposed', 'wind_imposed'};
-% Options.load_combs          = {'snow_wind'}; 
+% Options.load_combs          = {'snow_wind'};
 % Options.load_combs          = {'traffic', 'wind_imposed'};
 % Options.load_combs          = {'traffic'};
 

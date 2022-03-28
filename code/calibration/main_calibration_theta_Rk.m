@@ -31,9 +31,9 @@ Options.consider_VRmin      = true;
 % .........................................................................
 % Only to get the design scenarios; not used in the reli calculations
 % Load combination rule/formula: 
-% 'ec2_simple', 'ec2_advanced'
-% Options.load_combination    = 'ec2_simple';
-Options.load_combination    = 'ec2_advanced';
+% 'ec0_simple', 'ec0_advanced'
+Options.load_combination    = 'ec0_simple';
+% Options.load_combination    = 'ec0_advanced';
 
 % Variable load sets (#load comb would be more descriptive)
 % 'traffic', 'snow-wind', 'snow-imposed', 'wind-imposed'

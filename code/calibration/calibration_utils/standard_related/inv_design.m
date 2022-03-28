@@ -88,11 +88,11 @@ end
 % Effect
 % -------------------------------------------------------------------------
 switch lower(load_combination)
-    case 'ec2_simple'
+    case 'ec0_simple'
         % the order of Q1 and Q2 does NOT matter (taken care by the load comb.
         % function)
         VE      = @(x) simple_load_comb(gamma_G, x, gamma_Q1, psi01, x.*chi1/(1-chi1), gamma_Q2, psi02, x.*chi2/(1-chi2));
-    case 'ec2_advanced'
+    case 'ec0_advanced'
         % the order of Q1 and Q2 does NOT matter (taken care by the load comb.
         % function)
         VE      = @(x) advanced_load_comb(gamma_G, ksi, x, gamma_Q1, psi01, x.*chi1/(1-chi1), gamma_Q2, psi02, x.*chi2/(1-chi2));    
