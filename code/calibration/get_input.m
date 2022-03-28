@@ -48,14 +48,25 @@ f_cck_ds            = 40;
 chi1_ds         = 0.1:0.1:0.9;
 
 % load ratio for variable load 2
-chi2_ds         = 0.1:0.1:0.9;
+% chi2_ds         = 0.1:0.2:0.9;
 % chi2_ds         = 0.1:0.05:0.9;
+chi2_ds         = 0.1:0.1:0.9;
 
 % reinforcement ratio - with nominal values
 % rho_ds              = [0.005, 0.010, 0.015];
 % rho_ds              = [0.005, 0.010];
 % rho_ds          = [0.008, 0.012];
 rho_ds          = 0.01;
+
+% size of the maximum sieve gird used for aggregates
+% d_lower_ds          = [8, 16, 24];
+d_lower_ds          = [8, 16];
+% d_lower_ds          = 16;
+
+% a-d ratio
+% a_to_d_ratio_ds     = [2, 3, 4];
+a_to_d_ratio_ds     = [2, 3];
+% a_to_d_ratio_ds     = 3;
 
 % ...............................................
 % FOR TESTING
@@ -71,6 +82,8 @@ DS.Range.f_cck      = f_cck_ds;
 DS.Range.chi1       = chi1_ds;
 DS.Range.chi2       = chi2_ds;
 DS.Range.rho        = rho_ds;
+DS.Range.d_lower    = d_lower_ds;
+DS.Range.a_to_d_ratio = a_to_d_ratio_ds;
 
 [Chi1q, Chi2q]      = meshgrid(chi1_ds, chi2_ds);
 
@@ -208,6 +221,20 @@ Prob.Asl.gamma      = NaN;
 % this is more general as it works for asymmetric distributions as well
 Prob.Asl.repr2mean  = @(x_repr, prob) repr2mean_shift(x_repr, prob, 0);
 Prob.Asl.mean2repr  = @(x_mean, prob) mean2repr_shift(x_mean, prob, 0);
+
+% size of the maximum sieve gird used for aggregates
+% the mean (repr) value will be assigned during the optimization, comes
+% from design scenario
+Prob.d_lower.mean   = NaN;
+Prob.d_lower.mean   = NaN;
+Prob.d_lower.dist   = 0;
+
+% a-d ratio
+% the mean (repr) value will be assigned during the optimization, comes
+% from design scenario
+Prob.a_to_d_ratio.mean   = NaN;
+Prob.a_to_d_ratio.repr   = NaN;
+Prob.a_to_d_ratio.dist   = 0;
 
 % -------------------------------------------------------------------------
 % LOAD

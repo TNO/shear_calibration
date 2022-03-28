@@ -17,7 +17,7 @@ function [beta, formresults, probdata] = run_reli_theta_Rk(Prob, Options)
 resistance_model            = Options.resistance_model;
 consider_VRmin              = Options.consider_VRmin;
 
-rv_order                    = {'theta_R', 'f_cc', 'd', 'b', 'Asl'};    
+rv_order                    = {'theta_R', 'f_cc', 'd', 'b', 'Asl', 'd_lower', 'a_to_d_ratio'};    
 Prob                        = orderfields(Prob, rv_order);
 
 var_names                   = fieldnames(Prob);
@@ -77,32 +77,23 @@ f_cc                = Prob.f_cc.repr;
 d                   = Prob.d.repr;
 b                   = Prob.b.repr;
 Asl                 = Prob.Asl.repr;
+d_lower             = Prob.d_lower.repr;
+a_to_d_ratio        = Prob.a_to_d_ratio.repr;
 
 switch lower(resistance_model)
     case 'ec2_codified_2019'
         gamma_R = 1;
         VR      = EC2_codified_2019(f_cc, Asl, b, d, theta_R, gamma_R, consider_VRmin);
-    case 'ec2_new'
-        gamma_M = 1;
-        gamma_C = 1;
-        VR      = EC2_new(f_cc, Asl, b, d, theta_R, gamma_M, gamma_C);
-    case 'ec2_proposed_tg4_2016'
-        gamma_C = 1;
-        VR      = EC2_proposed_TG4_2016(f_cc, Asl, b, d, theta_R, gamma_C);
-    case 'ec2_proposed_yuguang_2019'
-        gamma_C = 1;
-        VR      = EC2_proposed_Yuguang_2019(f_cc, Asl, b, d, theta_R, gamma_C);
+    case 'ec2_pre_2021'
+        gamma_R = 1;
+        VR      = EC2_pre_2021(f_cc, Asl, b, d, d_lower, a_to_d_ratio, theta_R, gamma_R, consider_VRmin);
     case 'mc2010_level_ii_codified_2019'
-        gamma_C = 1;
-        VR      = MC2010_level_II_codified_2019(f_cc, Asl, b, d, theta_R, gamma_C);  
-    case 'mc2010_new'
-        % to be fixed later
-%         gamma_M = 1;
-%         gamma_C = 1;
-%         VR      = MC2010levelII_new(f_cc, Asl, b, d, C, gamma_M, gamma_C);         
+        gamma_R = 1;
+        VR      = MC2010_level_II_codified_2019(f_cc, Asl, b, d, d_lower, a_to_d_ratio, theta_R, gamma_R);     
     otherwise
         error(['Unknown resistance model:', resistance_model])
 end
+
 V_Rc_repr = VR;
 marg(n_var+1,:)                 = [0,  V_Rc_repr,  0,  V_Rc_repr,  NaN,  NaN,  NaN,  NaN, 0];
 

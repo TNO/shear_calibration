@@ -10,7 +10,7 @@ verbose                 = Options.verbose;
 P_repr_target           = Options.P_repr_target;
 Prob.theta_R.repr       = x;
 
-keep_fields = {'theta_R', 'f_cc', 'd', 'b', 'Asl'};
+keep_fields = {'theta_R', 'f_cc', 'd', 'b', 'Asl', 'd_lower', 'a_to_d_ratio'};
 all_fields = fieldnames(Prob);
 remove_fields = setdiff(all_fields, keep_fields);
 

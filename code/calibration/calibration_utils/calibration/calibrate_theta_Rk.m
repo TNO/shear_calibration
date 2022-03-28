@@ -15,6 +15,10 @@ elseif verbose > 0
     opt = optimoptions('fmincon', 'Display', 'iter');
 end
 
+% this strict only to make comparing the impact of changes and verifying
+% that the changes did not introduce errors
+opt.StepTolerance = 1e-5;
+
 x0              = 1.0;
 lb              = 0.5;
 ub              = 3;
@@ -24,4 +28,3 @@ calibr_par      = x;
 objfun_val      = fval;
 
 end
-

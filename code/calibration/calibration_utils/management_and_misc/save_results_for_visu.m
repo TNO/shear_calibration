@@ -19,6 +19,8 @@ f_cck   = combis(:,2);
 chi1    = combis(:,3);
 chi2    = combis(:,4);
 rho     = combis(:,5);
+d_lower = combis(:,6);
+a_to_d_ratio = combis(:,7);
 
 % mimic dataframe object
 switch lower(output)
@@ -26,7 +28,7 @@ switch lower(output)
         beta    = Results.beta;
         % beta    = round(beta*1e4)/1e4;
         
-        T       = table(beta, load_comb, d, f_cck, chi1, chi2, rho, weight);
+        T       = table(beta, load_comb, d, f_cck, chi1, chi2, rho, d_lower, a_to_d_ratio, weight);
         
         tpath   = ['./results/beta_', fname, '.csv'];
         writetable(T, tpath)
@@ -56,9 +58,12 @@ switch lower(output)
         chi1_r      = repmat(chi1,cols,1);
         chi2_r      = repmat(chi2,cols,1);
         rho_r       = repmat(rho,cols,1);
+
+        d_lower_r   = repmat(d_lower, cols, 1);
+        a_to_d_ratio_r   = repmat(a_to_d_ratio, cols, 1);
         weight_r    = repmat(weight,cols,1);
 
-        T        = table(alpha2_r, alpha_r, alpha_labels, load_comb_r, d_r, f_cck_r, chi1_r, chi2_r, rho_r, weight_r);        
+        T        = table(alpha2_r, alpha_r, alpha_labels, load_comb_r, d_r, f_cck_r, chi1_r, chi2_r, rho_r, d_lower_r, a_to_d_ratio_r, weight_r);        
        
 %         alpha2_C   = alpha2(:,1);
 %         alpha2_fcc = alpha2(:,2);

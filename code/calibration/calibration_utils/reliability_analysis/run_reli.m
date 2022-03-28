@@ -18,7 +18,10 @@ resistance_model            = Options.resistance_model;
 load_combination            = Options.load_combination;
 consider_VRmin              = Options.consider_VRmin;
 
-rv_order                    = {'theta_R', 'f_cc', 'd', 'b', 'Asl', 'G', 'K_G', 'ksi', 'Q1', 'K_Q1', 'psi01', 'Q2', 'K_Q2', 'psi02', 'K_E'};    
+rv_order                    = {
+    'theta_R', 'f_cc', 'd', 'b', 'Asl', 'd_lower', 'a_to_d_ratio', ...
+    'G', 'K_G', 'ksi', 'Q1', 'K_Q1', 'psi01', 'Q2', 'K_Q2', 'psi02', 'K_E'
+};    
 Prob                        = orderfields(Prob, rv_order);
 
 var_names                   = fieldnames(Prob);

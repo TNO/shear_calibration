@@ -37,6 +37,13 @@ for ii = 1:n_rv
     if ~isfield(X, 'std')
         X.std = NaN;
     end
+    if ~isfield(X, 'P_repr')
+        X.P_repr = NaN;
+    end
+    if ~isfield(X, 'gamma')
+        X.gamma = NaN;
+    end
+
     if X.dist == 32
         load(['tmp\vector_distr_', num2str(X.dist_ID), '.mat'], 'x_grid', 'pdf')
 
