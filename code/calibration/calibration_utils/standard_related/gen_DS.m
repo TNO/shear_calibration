@@ -29,11 +29,13 @@ f_cck_ds        = DS.Range.f_cck;
 chi1_ds         = DS.Range.chi1;
 chi2_ds         = DS.Range.chi2;
 rho_ds          = DS.Range.rho;
+d_lower_ds      = DS.Range.d_lower;
+a_to_d_ratio_ds = DS.Range.a_to_d_ratio;
 
 % create all possible combinations for the design scenarios (overkill,
 % should be moved outside of the obj_fun)
-combis1         = combvec(d_ds, f_cck_ds, chi1_ds, chi2_ds, rho_ds)';
-[~, ia]         = unique(combis1(:,[1,2,3,5]), 'rows');
+combis1         = combvec(d_ds, f_cck_ds, chi1_ds, chi2_ds, rho_ds, d_lower_ds, a_to_d_ratio_ds)';
+[~, ia]         = unique(combis1(:,[1,2,3,5,6,7]), 'rows');
 combis2         = combis1(ia,:);
 combis2(:,4)    = 0;
 combis          = [];
@@ -68,7 +70,7 @@ end
 idx             = cellfun(@isempty, load_combs_all);
 load_combs_all(idx) = []; 
 
-combis_colnames = {'d', 'f_cck', 'chi1', 'chi2', 'rho'};
+combis_colnames = {'d', 'f_cck', 'chi1', 'chi2', 'rho', 'd_lower', 'a_to_d_ratio'};
 n_ds            = size(combis, 1);
 
 DS.weights_combis = weights;
@@ -90,6 +92,8 @@ for ii = 1:n_ds
     chi1_ii             = combis(ii,3);
     chi2_ii             = combis(ii,4);
     rho_repr_ii         = combis(ii,5);
+    d_lower_ii          = combis(ii,6);
+    a_to_d_ratio_ii     = combis(ii,7);
    
     % concrete compressive strength
     Prob_ii.f_cc.repr   = f_cck_ii;
@@ -104,11 +108,15 @@ for ii = 1:n_ds
     Asl_repr_ii         = rho_repr_ii * b_repr_ii * d_repr_ii;
     [~, Prob_ii.Asl]    = Prob_ii.Asl.repr2mean(Asl_repr_ii, Prob_ii.Asl);
 
+    % 
+    Prob_ii.d_lower.repr = d_lower_ii;
+    Prob_ii.d_lower.mean = d_lower_ii;
+    Prob_ii.a_to_d_ratio.repr = a_to_d_ratio_ii;
+    Prob_ii.a_to_d_ratio.mean = a_to_d_ratio_ii;
+
     fix_par             = [chi1_ii, chi2_ii];
     
     Prob_ii             = inv_design(free_par, fix_par, Prob_ii, Prob_actions, Options, load_combs_all{ii});
-    %[Prob_ii,VR_ii]     = inv_design(free_par, fix_par, Prob_ii, Options);
-    %VR(ii) = VR_ii;
     Prob(ii)            = Prob_ii;
 end
 t_elapsed_sec = toc(t_ds);
