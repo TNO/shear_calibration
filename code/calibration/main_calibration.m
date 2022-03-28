@@ -21,24 +21,22 @@ cellfun(@(x) addpath(genpath(x)), to_path)
 % OPTIONS
 %--------------------------------------------------------------------------
 % Shear resistance model/formula
-% 'ec2_codified_2019', 'ec2_new', 'ec2_proposed_tg4_2016', 'ec2_proposed_yuguang_2019'
-% 'mc2010_level_ii_codified_2019', 'mc2010_new'
-Options.resistance_model    = 'ec2_codified_2019';
-% Options.resistance_model    = 'ec2_proposed_yuguang_2019';
-% Options.resistance_model    = 'ec2_new';
+% Options.resistance_model    = 'ec2_codified_2019';
+% Options.resistance_model    = 'ec2_pre_2021';
+Options.resistance_model    = 'mc2010_level_ii_codified_2019';
 
 Options.consider_VRmin      = true;
 % Options.consider_VRmin      = false;
 
 % Load combination rule/formula
-% 'ec2_simple', 'ec2_advanced'
-Options.load_combination    = 'ec2_simple';
-% Options.load_combination    = 'ec2_advanced';
+% 'ec0_simple', 'ec0_advanced'
+Options.load_combination    = 'ec0_simple';
+% Options.load_combination    = 'ec0_advanced';
 
 % Variable load sets (#load comb would be more descriptive
 % 'traffic', 'snow-wind', 'snow-imposed', 'wind-imposed'
 Options.load_combs          = {'traffic', 'snow_wind', 'snow_imposed', 'wind_imposed'};
-% Options.load_combs          = {'snow_wind'}; 
+% Options.load_combs          = {'snow_wind'};
 % Options.load_combs          = {'traffic', 'wind_imposed'};
 % Options.load_combs          = {'traffic'};
 
@@ -101,7 +99,7 @@ for i = 1:length(output)
 end
 
 % quick diagnostic plot
-quick_visual_results(Results, Options.beta_target, sprintf('calibrated, gamma_C=%.3f', calibr_par))
+quick_visual_results(Results, Options.beta_target, sprintf('calibrated, gamma_R=%.3f', calibr_par))
 
 % .........................................................................
 % reference with current partial factor
@@ -122,7 +120,7 @@ for i = 1:length(output)
 end
 
 % quick diagnostic plot
-quick_visual_results(Results, Options.beta_target, sprintf('reference, gamma_C=%.3f', calibr_par))
+quick_visual_results(Results, Options.beta_target, sprintf('reference, gamma_R=%.3f', calibr_par))
 
 %--------------------------------------------------------------------------
 % CLEAN UP

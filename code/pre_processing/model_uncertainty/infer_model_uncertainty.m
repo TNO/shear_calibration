@@ -1,7 +1,7 @@
 % Estimate the model uncertainty (theta_R) of a selected shear resistance formula.
 %
 % theta_R = V_Rexp./V_Rmodel
-% theta_R is assuemed to be lognormally distributed
+% theta_R is assumed to be lognormally distributed
 % the parameters of the lognormal distribution are estimated using the maximum
 % likelihood method
 %
@@ -21,9 +21,9 @@ addpath(genpath(to_path))
 % OPTIONS
 % =========================================================================
 
-model       = 'EN1992-1-1';
+% model       = 'EN1992-1-1';
 % model       = 'prEN1992-1-1';
-% model       = 'MC2010';
+model       = 'MC2010';
 
 consider_VRmin = true;
 % confidence level
@@ -49,16 +49,23 @@ fc          = fc;          % in [MPa], according to par. 7.2.3 (for our purpose,
 b           = bw;          % in [mm], width of the beam
 d           = d;           % in [mm], effective height
 rho         = rho/100;
-d_lower     = dg;     % [mm]
+
+% according to Yuguang's email of 2022-Mar-27
+d_lower     = dg;          % [mm]
+
 a_to_d_ratio = mvd;        % [-]
-% dg          = 16*ones(size(rho)); % note that this done as dg is fixed in the calibration!!
-Asl         = rho.*b.*d;          % in [mm2], area of tensile reinforcement in considered section
+Asl         = rho.*b.*d;   % in [mm2], area of tensile reinforcement in considered section
 
 boolean_string = {'false', 'true'};
 
 % =========================================================================
 % ESTIMATE parameters
 % =========================================================================
+v1 = shear_formula(fc, Asl, b, d, d_lower, a_to_d_ratio, 1.137, 1, consider_VRmin, 'EN1992-1-1');
+v2 = shear_formula(fc, Asl, b, d, d_lower, a_to_d_ratio, 1.344, 1, consider_VRmin, 'MC2010');
+
+hist(v1./v2)
+
 [V_R_1_model, ID]       = shear_formula(fc, Asl, b, d, d_lower, a_to_d_ratio, 1, 1, consider_VRmin, model);
 kappa                   = V_Rexp./V_R_1_model;
 
@@ -84,7 +91,7 @@ end
 main_title  = ['Calibrated ', model];
 
 disp(['Consider VRmin in resistance model?: ', boolean_string{consider_VRmin+1}])
-disp(['Number of experiments for which VRmin is governing: ', num2str(sum(ID==2))])
+% disp(['Number of experiments for which VRmin is governing: ', num2str(sum(ID==2))])
 
 disp('Model uncertainty maximum likelihood estimate, theta_R')
 disp(['     mean of theta_R : ', sprintf('%.5f', tr_mean)])
