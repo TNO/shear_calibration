@@ -21,11 +21,9 @@ cellfun(@(x) addpath(genpath(x)), to_path)
 % OPTIONS
 %--------------------------------------------------------------------------
 % Shear resistance model/formula
-% 'ec2_codified_2019', 'ec2_new', 'ec2_proposed_tg4_2016', 'ec2_proposed_yuguang_2019'
-% 'mc2010_level_ii_codified_2019', 'mc2010_new'
-Options.resistance_model    = 'ec2_codified_2019';
-% Options.resistance_model    = 'ec2_proposed_yuguang_2019';
-% Options.resistance_model    = 'ec2_new';
+% Options.resistance_model    = 'ec2_codified_2019';
+% Options.resistance_model    = 'ec2_pre_2021';
+Options.resistance_model    = 'mc2010_level_ii_codified_2019';
 
 Options.consider_VRmin      = true;
 % Options.consider_VRmin      = false;

@@ -38,7 +38,7 @@ load_comb_weights   = Options.load_comb_weights;
 % d_ds                = [300, 450];
 d_ds                = 300;
 
-% concrete - charactersitic compressive strength
+% concrete - characteristic compressive strength
 % f_cck_ds            = [20, 40, 60, 80];
 % f_cck_ds            = [40, 60];
 f_cck_ds            = 40;
@@ -65,8 +65,8 @@ d_lower_ds          = [8, 16];
 
 % a-d ratio
 % a_to_d_ratio_ds     = [2, 3, 4];
-a_to_d_ratio_ds     = [2, 3];
-% a_to_d_ratio_ds     = 3;
+% a_to_d_ratio_ds     = [2, 3];
+a_to_d_ratio_ds     = 3;
 
 % ...............................................
 % FOR TESTING
@@ -141,22 +141,17 @@ switch lower(resistance_model)
         Prob.theta_R.P_repr = NaN;
         Prob.theta_R.gamma  = NaN;
 
-    case 'ec2_new'
+    case 'ec2_pre_2021'
         % to be added
-    case 'ec2_proposed_yuguang_2019'
-        Prob.theta_R.mean   = 0.7166;
-        Prob.theta_R.cov    = 0.1857;
+    case 'mc2010_level_ii_codified_2019'
+        Prob.theta_R.mean   = 1.34439;
+        Prob.theta_R.cov    = 0.19243;
+        Prob.theta_R.repr   = 1.07920; % to obtain characteristics value (5%) for V_Rc
+
         Prob.theta_R.std    = NaN;
         Prob.theta_R.dist   = 2;
         Prob.theta_R.P_repr = NaN;
         Prob.theta_R.gamma  = NaN;
-        Prob.theta_R.in_standardized_equation = 0.6; % used for the standard based design but in the reliability analysis!!
-    case 'ec2_proposed_tg4_2016'
-        % to be added
-    case 'mc2010_level_ii_codified_2019'
-        % to be added 
-    case 'mc2010_level_ii_new'
-                 
     otherwise
         error(['Unknown resistance model:', resistance_model])
 end

@@ -1,34 +1,59 @@
 % MC2010 level II shear resistance formula.
 %
-% VR = MC2010_LEVEL_II_CODIFIED_2019(fc, Asl, b, d, dg, C_c, gamma_C)
+% [VR, ID] = MC2010_LEVEL_II_CODIFIED_2019(fc, Asl, b, d, d_lower, a_to_d_ratio, theta_R, gamma_R)
 %
 % MIND THE UNITS! The formula is dimensionally inconsistent.
 % The implementation is based on `Model Code 2010. Final draft. September
-% 2011`. We added the `C_c` parameter, it is not part of the MC2010 model
-% (`C_c = 1.0` leads to the codified MC2010 model).
+% 2011`. We added the `theta_R` parameter, it is not part of the MC2010 model
+% (`theta_R = 1.0` leads to the codified MC2010 model).
 %
 %INPUT
 % fc        concrete compressive strength, [MPa]
 % Asl       area of tensile reinforcement in the considered section, [mm^2]
 % b         width, [mm]
 % d         depth, [mm]
-% dg        maximum aggregate size [mm]
-% C_c       model uncertainty factor, [-]
-% gamma_C   partial factor, [-]
+% d_lower   size of the maximum sieve gird used for aggregates [mm]
+% a_to_d_ratio []
+% theta_R   model uncertainty factor, [-]
+% gamma_R   partial factor, [-]
 %
 %
 %OUTPUT
 % VR    shear resistance, [kN]
+% ID    indicator of which formula is "active"/governing (for this 
+%       formula the ID is always 1, ID is included for consistency with
+%       other shear formulas):
+%           1: VR 
+%           2: VRmin
 
-function VR = MC2010_level_II_codified_2019(fc, Asl, b, d, dg, C_c, gamma_C)
+function [VR, ID] = MC2010_level_II_codified_2019(fc, Asl, b, d, d_lower, a_to_d_ratio, theta_R, gamma_R)
+
+% -------------------------------------------------------------------------
+% Initialize
+% -------------------------------------------------------------------------
+% TODO: make it more general and robust
+n = length(fc);
+
+if length(d_lower) == 1
+    d_lower = d_lower * ones(size(fc));
+end
+if length(a_to_d_ratio) == 1
+    a_to_d_ratio = a_to_d_ratio * ones(size(fc));
+end
+if length(theta_R) == 1
+    theta_R = theta_R * ones(size(fc));
+end
 
 % -------------------------------------------------------------------------
 % MC2010 - level II, according to par. 7.3.3.2
 % -------------------------------------------------------------------------
 z           = 0.9 .* d;
-adratio     = 3.0;                  % treat as input par., later
-a           = adratio .* d;
+a           = a_to_d_ratio .* d;
 Es          = 2.1e5;                % [N/mm2]
+
+% dg - maximum aggregate size [mm]
+% according to Yuguang's email of 2022-Mar-27
+dg = d_lower;
 
 dg_for_kdg = dg;
 % "to account for the loss of aggregate interlock in the cracks due to
@@ -40,17 +65,18 @@ kdg(kdg < 0.75) = 0.75;
 
 % calculate design shear resistance in [kN], according to eqs. (7.3-17) and (7.3-21):
 V0          = 2.5e3;
-n           = length(fc);
-VR          = nan(n,1);
+
+VR          = nan(size(fc));
 for ii = 1:n
     epsx  = @(V) epsx_fun(V, a(ii), z(ii), Asl(ii));
     % eq. (7.3-21)
-    kv    = @(V) (0.4 / (1 + (1500 * epsx(V)))) * (1300 / (1000 + (kdg(ii) * z(ii))));
-    VR(ii) = fzero(@(V) (C_c * kv(V) * (min(sqrt(fc(ii)), 8) / gamma_C) * b(ii) * z(ii)) - V, V0);
+    kv     = @(V) (0.4 / (1 + (1500 * epsx(V)))) * (1300 / (1000 + (kdg(ii) * z(ii))));
+    VR_    = fzero(@(V) (theta_R(ii) * kv(V) * (min(sqrt(fc(ii)), 8) / gamma_R) * b(ii) * z(ii)) - V, V0);
+    VR(ii) = 1.0 * VR_;
 end
 VR          = 1e-3 .* VR;
 
-
+ID = ones(size(VR));
 % ..................................
 % Utility function
 % ..................................
