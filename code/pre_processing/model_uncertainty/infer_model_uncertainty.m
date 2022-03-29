@@ -22,8 +22,8 @@ addpath(genpath(to_path))
 % =========================================================================
 
 % model       = 'EN1992-1-1';
-% model       = 'prEN1992-1-1';
-model       = 'MC2010';
+model       = 'prEN1992-1-1';
+% model       = 'MC2010';
 
 consider_VRmin = true;
 % confidence level
@@ -56,17 +56,19 @@ d_lower     = dg;          % [mm]
 a_to_d_ratio = mvd;        % [-]
 Asl         = rho.*b.*d;   % in [mm2], area of tensile reinforcement in considered section
 
+gamma_S     = 1.0;         % rebar material strength partial factor
+fsy         = 500 + 2*30;  % rebar yield strength, mean value based on B500 grade and JCSS recommendations
+
 boolean_string = {'false', 'true'};
 
 % =========================================================================
 % ESTIMATE parameters
 % =========================================================================
-v1 = shear_formula(fc, Asl, b, d, d_lower, a_to_d_ratio, 1.137, 1, consider_VRmin, 'EN1992-1-1');
-v2 = shear_formula(fc, Asl, b, d, d_lower, a_to_d_ratio, 1.344, 1, consider_VRmin, 'MC2010');
+% v1 = shear_formula(fc, Asl, b, d, d_lower, a_to_d_ratio, fsy, 1, 1.137, 1, consider_VRmin, 'EN1992-1-1');
+% v2 = shear_formula(fc, Asl, b, d, d_lower, a_to_d_ratio, fsy, 1, 1.344, 1, consider_VRmin, 'MC2010');
+% hist(v1./v2)
 
-hist(v1./v2)
-
-[V_R_1_model, ID]       = shear_formula(fc, Asl, b, d, d_lower, a_to_d_ratio, 1, 1, consider_VRmin, model);
+[V_R_1_model, ID]       = shear_formula(fc, Asl, b, d, d_lower, a_to_d_ratio, fsy, gamma_S, 1, gamma_R, consider_VRmin, model);
 kappa                   = V_Rexp./V_R_1_model;
 
 % simplified 
@@ -74,7 +76,7 @@ kappa                   = V_Rexp./V_R_1_model;
 [tr_mean, tr_cov]       = lognormstat(tr_par(1), tr_par(2), 'par');
 
 theta_R                 = tr_mean;
-V_R_mean_model          = shear_formula(fc, Asl, b, d, d_lower, a_to_d_ratio, theta_R, gamma_R, consider_VRmin, model);
+V_R_mean_model          = shear_formula(fc, Asl, b, d, d_lower, a_to_d_ratio, fsy, gamma_S, theta_R, gamma_R, consider_VRmin, model);
 
 % check if the MLE estimate
 mu_mle = mean(log(kappa));
@@ -83,15 +85,17 @@ if abs(mu_mle - tr_par(1)) > 1e-4 || abs(std_mle - tr_par(2)) > 1e-4
     error('The maximum likelihood estimate is wrong or inaccurate.')
 end
 
-if consider_VRmin == 1
-    model = [model, ' full'];
-else
-    model = [model, ' base'];
+if strcmpi(model, 'mc2010') ~= 1
+    if consider_VRmin == 1
+        model = [model, ' full'];
+    else
+        model = [model, ' base'];
+    end
 end
 main_title  = ['Calibrated ', model];
 
 disp(['Consider VRmin in resistance model?: ', boolean_string{consider_VRmin+1}])
-% disp(['Number of experiments for which VRmin is governing: ', num2str(sum(ID==2))])
+disp(['Number of experiments for which VRmin is governing: ', num2str(sum(ID==2))])
 
 disp('Model uncertainty maximum likelihood estimate, theta_R')
 disp(['     mean of theta_R : ', sprintf('%.5f', tr_mean)])

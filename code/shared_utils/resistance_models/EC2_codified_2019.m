@@ -17,7 +17,7 @@
 % gamma_R   partial factor, [-]
 %
 %OPTIONAL
-% consider_vrmin    Consider VRmin in the calculation?, default: no
+% consider_VRmin    Consider VRmin in the calculation?, default: no
 %
 %OUTPUT
 % VR    shear resistance, [kN]
@@ -25,10 +25,10 @@
 %           1: VR
 %           2: VRmin
 
-function [VR, ID] = EC2_codified_2019(fc, Asl, b, d, theta_R, gamma_R, consider_vrmin)
+function [VR, ID] = EC2_codified_2019(fc, Asl, b, d, theta_R, gamma_R, consider_VRmin)
 
 if nargin < 7
-   consider_vrmin = false;
+   consider_VRmin = false;
 end
 
 % -------------------------------------------------------------------------
@@ -43,7 +43,7 @@ rho_l(rho_l > 0.02) = 0.02;
 VR              = 1e-3 .* (0.18 / gamma_R .* k .* ((100 .* rho_l .* fc).^(1/3)) .* b .* d);
 ID              = ones(size(VR));
 
-if consider_vrmin
+if consider_VRmin == 1
     % calculate min. design shear resistance in [kN], according to eq. (6.2.b):
     % we replaced 0.035 with 0.035 * 1.5 / gamma_C; to make the formula
     % reasonable from a structural reliability point of view
