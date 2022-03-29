@@ -26,6 +26,7 @@ model       = 'prEN1992-1-1';
 % model       = 'MC2010';
 
 consider_VRmin = true;
+% consider_VRmin = false;
 % confidence level
 ci          = 0.95;
 
@@ -57,7 +58,7 @@ a_to_d_ratio = mvd;        % [-]
 Asl         = rho.*b.*d;   % in [mm2], area of tensile reinforcement in considered section
 
 gamma_S     = 1.0;         % rebar material strength partial factor
-fsy         = 500 + 2*30;  % rebar yield strength, mean value based on B500 grade and JCSS recommendations
+fsy         = 500 + 2*30;  % [MPa] rebar yield strength, mean value based on B500 grade and JCSS recommendations
 
 boolean_string = {'false', 'true'};
 

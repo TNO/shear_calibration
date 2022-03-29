@@ -1,6 +1,6 @@
 % prEC2 based shear resistance formula (2021-October-14)
 %
-% [VR, ID]  = EC2_pre_2021(fc, Asl, b, d, d_lower, a_to_d_ratio, theta_R, gamma_R, consider_vrmin)
+% [VR, ID]  = EC2_pre_2021(fc, Asl, b, d, d_lower, a_to_d_ratio, fsy, gamma_S, theta_R, gamma_R, consider_vrmin)
 %
 % MIND THE UNITS! The formula is dimensionally inconsistent.
 % The implementation is based on `prEN1992-1-1 2021 officiële versies
