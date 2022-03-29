@@ -34,9 +34,9 @@ a_to_d_ratio_ds = DS.Range.a_to_d_ratio;
 
 % create all possible combinations for the design scenarios (overkill,
 % should be moved outside of the obj_fun)
-p_ds_2_actions = combvec( ...
+p_ds_2_actions = cartesian( ...
     chi1_ds, chi2_ds, d_ds, f_cck_ds, rho_ds, d_lower_ds, a_to_d_ratio_ds ...
-)';
+);
 [~, ia]         = unique(p_ds_2_actions(:,[1,3,4,5,6,7]), 'rows');
 p_ds_1_action   = p_ds_2_actions(ia,:);
 p_ds_1_action(:,2) = 0;

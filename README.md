@@ -21,7 +21,7 @@ Matlab:
  	* Optimization Toolbox
  	* Global Optimization Toolbox
  	* Parallel Computing Toolbox (to reduce wall clock time)
- 	* Deep Learning Toolbox (`combvec`)
+ 	* (only for testing: Deep Learning Toolbox (`combvec`))
  - add to your path:
  	* [custom_FERUM](https://github.com/TNO/custom_FERUM): the entire repository
  	* [Statistics---Matlab](https://github.com/rozsasarpi/Statistics---Matlab): the content of the `distribution_functions\univariate\` folder
