@@ -8,19 +8,19 @@ function save_results_for_visu(fname, output)
 load(['./results/', fname, '.mat'], 'Results', 'DS')
 
 % create all possible combinations for the design scenarios
-combis          = DS.combis;
+p_ds_all        = DS.p_ds_all;
 
 % weight_logic    = DS.weights_combis > 0;
 weight          = DS.weights_combis;
 load_comb       = DS.load_combs_all;
 
-d       = combis(:,1);
-f_cck   = combis(:,2);
-chi1    = combis(:,3);
-chi2    = combis(:,4);
-rho     = combis(:,5);
-d_lower = combis(:,6);
-a_to_d_ratio = combis(:,7);
+chi1    = p_ds_all(:,1);
+chi2    = p_ds_all(:,2);
+d       = p_ds_all(:,3);
+f_cck   = p_ds_all(:,4);
+rho     = p_ds_all(:,5);
+d_lower = p_ds_all(:,6);
+a_to_d_ratio = p_ds_all(:,7);
 
 % mimic dataframe object
 switch lower(output)

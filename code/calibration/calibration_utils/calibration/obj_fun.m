@@ -18,7 +18,7 @@ beta_t                  = Options.beta_target;
 free_par                = x;
 [Prob, DS]              = gen_DS(free_par, Prob, Prob_actions, DS, Options);
 
-n_ds                    = size(DS.combis, 1);
+n_ds                    = size(DS.p_ds_all, 1);
 
 % -------------------------------------------------------------------------
 % Reliability analysis

@@ -21,7 +21,7 @@ remove_fields = setdiff(all_fields, keep_fields);
 free_par                = 1.0;
 [Prob, DS]              = gen_DS(free_par, Prob, Prob_actions, DS, Options);
 
-n_ds                    = size(DS.combis, 1);
+n_ds                    = size(DS.p_ds_all, 1);
 
 % -------------------------------------------------------------------------
 % Reliability analysis
