@@ -13,15 +13,20 @@ function Prob = inv_design(free_par, fix_par, Prob, Prob_actions, Options, load_
 % -------------------------------------------------------------------------
 resistance_model    = Options.resistance_model;
 load_combination    = Options.load_combination;
+consider_VRmin      = Options.consider_VRmin;
+K_FI_repr           = Options.K_FI_repr;
 
 chi1                = fix_par(1);
 chi2                = fix_par(2);
 
-C                   = Prob.C.in_standardized_equation;
+theta_R             = Prob.theta_R.repr;
 f_cc                = Prob.f_cc.repr;
 d                   = Prob.d.repr;
 b                   = Prob.b.repr;
 Asl                 = Prob.Asl.repr;
+
+d_lower             = Prob.d_lower.repr;
+a_to_d_ratio        = Prob.a_to_d_ratio.repr;
 
 gamma_G             = Prob.G.gamma;
 ksi                 = Prob.ksi.mean;
@@ -67,25 +72,14 @@ psi02               = Prob.psi02.mean;
 % -------------------------------------------------------------------------
 switch lower(resistance_model)
     case 'ec2_codified_2019'
-        gamma_C = free_par(1);
-        VR      = EC2_codified_2019(f_cc, Asl, b, d, C, gamma_C);
-    case 'ec2_new'
-        gamma_C = 1.5;
-        gamma_M = free_par(1);
-        VR      = EC2_new(f_cc, Asl, b, d, C, gamma_M, gamma_C);
-    case 'ec2_proposed_tg4_2016'
-        gamma_C = free_par(1);
-        VR      = EC2_proposed_TG4_2016(f_cc, Asl, b, d, C, gamma_C);    
-    case 'ec2_proposed_yuguang_2019'
-        gamma_C = free_par(1);
-        VR      = EC2_proposed_Yuguang_2019(f_cc, Asl, b, d, C, gamma_C);
+        gamma_R = free_par(1);
+        VR      = EC2_codified_2019(f_cc, Asl, b, d, theta_R, gamma_R, consider_VRmin);
+    case 'ec2_pre_2021'
+        gamma_R = free_par(1);
+        VR      = EC2_pre_2021(f_cc, Asl, b, d, d_lower, a_to_d_ratio, theta_R, gamma_R, consider_VRmin);
     case 'mc2010_level_ii_codified_2019'
-        gamma_C = free_par(1);
-        VR      = MC2010_level_II_codified_2019(f_cc, Asl, b, d, C, gamma_C);
-    case 'mc2010_level_ii_new'
-        gamma_C = 1.5;
-        gamma_M = free_par(1);
-        VR      = MC2010_level_II_new(f_cc, Asl, b, d, C, gamma_M, gamma_C);         
+        gamma_R = free_par(1);
+        VR      = MC2010_level_II_codified_2019(f_cc, Asl, b, d, d_lower, a_to_d_ratio, theta_R, gamma_R);       
     otherwise
         error(['Unknown resistance model:', resistance_model])
 end
@@ -94,11 +88,11 @@ end
 % Effect
 % -------------------------------------------------------------------------
 switch lower(load_combination)
-    case 'ec2_simple'
+    case 'ec0_simple'
         % the order of Q1 and Q2 does NOT matter (taken care by the load comb.
         % function)
         VE      = @(x) simple_load_comb(gamma_G, x, gamma_Q1, psi01, x.*chi1/(1-chi1), gamma_Q2, psi02, x.*chi2/(1-chi2));
-    case 'ec2_advanced'
+    case 'ec0_advanced'
         % the order of Q1 and Q2 does NOT matter (taken care by the load comb.
         % function)
         VE      = @(x) advanced_load_comb(gamma_G, ksi, x, gamma_Q1, psi01, x.*chi1/(1-chi1), gamma_Q2, psi02, x.*chi2/(1-chi2));    
@@ -110,7 +104,7 @@ end
 % Design
 % -------------------------------------------------------------------------
 % full utilization, E_d = R_d
-G_k             = fzero(@(x) VR - VE(x), 30);
+G_k             = fzero(@(x) VR - K_FI_repr * VE(x), 30);
 Q1_k            = G_k*chi1/(1-chi1);
 Q2_k            = G_k*chi2/(1-chi2);
 

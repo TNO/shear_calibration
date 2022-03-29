@@ -37,8 +37,15 @@ for ii = 1:n_rv
     if ~isfield(X, 'std')
         X.std = NaN;
     end
+    if ~isfield(X, 'P_repr')
+        X.P_repr = NaN;
+    end
+    if ~isfield(X, 'gamma')
+        X.gamma = NaN;
+    end
+
     if X.dist == 32
-        load(['tmp\vector_distr_', num2str(X.dist_ID), '.mat'], 'x_grid', 'pdf', 'cdf')
+        load(['tmp\vector_distr_', num2str(X.dist_ID), '.mat'], 'x_grid', 'pdf')
 
         X.mean      = trapz(x_grid, pdf.*x_grid);
         X.std       = sqrt(trapz(x_grid, pdf.*(x_grid-X.mean).^2));
@@ -96,7 +103,9 @@ for ii = 1:n_rv
     if isfield(X, 'mean2repr')
         [~, X] = X.mean2repr(X.mean, X);
     else
-        X.repr = NaN;
+        if ~isfield(X, 'repr')
+            X.repr = NaN;
+        end
     end
 
     Prob.(name)     = X;

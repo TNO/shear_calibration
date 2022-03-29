@@ -28,6 +28,7 @@ function [Prob, Prob_actions, DS] = get_input(Options)
 % DESIGN SCENARIOS
 % =========================================================================
 resistance_model    = Options.resistance_model;
+consider_VRmin      = Options.consider_VRmin;
 
 load_combs          = Options.load_combs;
 load_comb_weights   = Options.load_comb_weights;
@@ -37,24 +38,35 @@ load_comb_weights   = Options.load_comb_weights;
 % d_ds                = [300, 450];
 d_ds                = 300;
 
-% concrete - charactersitic compressive strength
+% concrete - characteristic compressive strength
 % f_cck_ds            = [20, 40, 60, 80];
 % f_cck_ds            = [40, 60];
 f_cck_ds            = 40;
 
 % load ratio for variable load 1
 % chi1_ds         = 0.1:0.01:0.9;
-chi1_ds         = 0.1:0.05:0.9;
+chi1_ds         = 0.1:0.1:0.9;
 
 % load ratio for variable load 2
-chi2_ds         = 0.1:0.1:0.9;
+% chi2_ds         = 0.1:0.2:0.9;
 % chi2_ds         = 0.1:0.05:0.9;
+chi2_ds         = 0.1:0.1:0.9;
 
 % reinforcement ratio - with nominal values
 % rho_ds              = [0.005, 0.010, 0.015];
 % rho_ds              = [0.005, 0.010];
 % rho_ds          = [0.008, 0.012];
 rho_ds          = 0.01;
+
+% size of the maximum sieve gird used for aggregates
+% d_lower_ds          = [8, 16, 24];
+d_lower_ds          = [8, 16];
+% d_lower_ds          = 16;
+
+% a-d ratio
+% a_to_d_ratio_ds     = [2, 3, 4];
+% a_to_d_ratio_ds     = [2, 3];
+a_to_d_ratio_ds     = 3;
 
 % ...............................................
 % FOR TESTING
@@ -70,6 +82,8 @@ DS.Range.f_cck      = f_cck_ds;
 DS.Range.chi1       = chi1_ds;
 DS.Range.chi2       = chi2_ds;
 DS.Range.rho        = rho_ds;
+DS.Range.d_lower    = d_lower_ds;
+DS.Range.a_to_d_ratio = a_to_d_ratio_ds;
 
 [Chi1q, Chi2q]      = meshgrid(chi1_ds, chi2_ds);
 
@@ -107,38 +121,37 @@ end
 % RESISTANCE
 % -------------------------------------------------------------------------
 
-% C factor in EC2 shear formula ~ resistance model uncertainty [-]
+% theta_R factor in EC2 shear formula ~ resistance model uncertainty [-]
 switch lower(resistance_model)
     case 'ec2_codified_2019'
-        Prob.C.mean         = 0.2047;
-        Prob.C.cov          = 0.2376;
-        % old inputs: different database
-%         Prob.C.mean         = 0.1912;
-%         Prob.C.cov          = 0.1986;
-        Prob.C.std          = NaN;
-        Prob.C.dist         = 2;
-        Prob.C.P_repr       = NaN;
-        Prob.C.gamma        = NaN;
-%         Prob.C.in_standardized_equation = 0.18; % used for the standard based design but in the reliability analysis!!
-%         Prob.C.in_standardized_equation = lognorminv(0.05, Prob.C.mean, Prob.C.cov); %0.1355; % used for the standard based design but in the reliability analysis!!
-%         Prob.C.in_standardized_equation = Prob.C.mean;
-        Prob.C.in_standardized_equation = 0.1471; % to obtain characteristics value for V_Rc
-    case 'ec2_new'
-        % to be added
-    case 'ec2_proposed_yuguang_2019'
-        Prob.C.mean         = 0.7166;
-        Prob.C.cov          = 0.1857;
-        Prob.C.std          = NaN;
-        Prob.C.dist         = 2;
-        Prob.C.P_repr       = NaN;
-        Prob.C.gamma        = NaN;
-        Prob.C.in_standardized_equation = 0.6; % used for the standard based design but in the reliability analysis!!
-    case 'ec2_proposed_tg4_2016'
+        if consider_VRmin
+            Prob.theta_R.mean   = 1.13688;
+            Prob.theta_R.cov    = 0.23777;
+%             Prob.theta_R.repr   = 1.0; % codified value
+            Prob.theta_R.repr   = 0.81707; % to obtain characteristics value (5%) for V_Rc
+        else
+            Prob.theta_R.mean   = 1.13750;
+            Prob.theta_R.cov    = 0.23760;
+%             Prob.theta_R.repr   = 1.0; % codified value
+            Prob.theta_R.repr   = 0.81776; % to obtain characteristics value (5%) for V_Rc
+        end
+        
+        Prob.theta_R.std    = NaN;
+        Prob.theta_R.dist   = 2;
+        Prob.theta_R.P_repr = NaN;
+        Prob.theta_R.gamma  = NaN;
+
+    case 'ec2_pre_2021'
         % to be added
     case 'mc2010_level_ii_codified_2019'
-        % to be added 
-    case 'mc2010_level_ii_new'
-                 
+        Prob.theta_R.mean   = 1.34439;
+        Prob.theta_R.cov    = 0.19243;
+        Prob.theta_R.repr   = 1.07920; % to obtain characteristics value (5%) for V_Rc
+
+        Prob.theta_R.std    = NaN;
+        Prob.theta_R.dist   = 2;
+        Prob.theta_R.P_repr = NaN;
+        Prob.theta_R.gamma  = NaN;
     otherwise
         error(['Unknown resistance model:', resistance_model])
 end
@@ -203,6 +216,20 @@ Prob.Asl.gamma      = NaN;
 % this is more general as it works for asymmetric distributions as well
 Prob.Asl.repr2mean  = @(x_repr, prob) repr2mean_shift(x_repr, prob, 0);
 Prob.Asl.mean2repr  = @(x_mean, prob) mean2repr_shift(x_mean, prob, 0);
+
+% size of the maximum sieve gird used for aggregates
+% the mean (repr) value will be assigned during the optimization, comes
+% from design scenario
+Prob.d_lower.mean   = NaN;
+Prob.d_lower.mean   = NaN;
+Prob.d_lower.dist   = 0;
+
+% a-d ratio
+% the mean (repr) value will be assigned during the optimization, comes
+% from design scenario
+Prob.a_to_d_ratio.mean   = NaN;
+Prob.a_to_d_ratio.repr   = NaN;
+Prob.a_to_d_ratio.dist   = 0;
 
 % -------------------------------------------------------------------------
 % LOAD

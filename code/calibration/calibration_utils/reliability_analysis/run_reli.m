@@ -16,8 +16,12 @@ function [beta, formresults, probdata] = run_reli(Prob, Options)
 
 resistance_model            = Options.resistance_model;
 load_combination            = Options.load_combination;
+consider_VRmin              = Options.consider_VRmin;
 
-rv_order                    = {'C', 'f_cc', 'd', 'b', 'Asl', 'G', 'K_G', 'ksi', 'Q1', 'K_Q1', 'psi01', 'Q2', 'K_Q2', 'psi02', 'K_E'};    
+rv_order                    = {
+    'theta_R', 'f_cc', 'd', 'b', 'Asl', 'd_lower', 'a_to_d_ratio', ...
+    'G', 'K_G', 'ksi', 'Q1', 'K_Q1', 'psi01', 'Q2', 'K_Q2', 'psi02', 'K_E'
+};    
 Prob                        = orderfields(Prob, rv_order);
 
 var_names                   = fieldnames(Prob);
@@ -75,12 +79,15 @@ end
 resi_model                      = translate_model(resistance_model);
 marg(n_var+1,:)                 = [0,  resi_model,  0,  resi_model,  NaN,  NaN,  NaN,  NaN, 0];
 
-% resistance model ID
+% load combination ID
 load_comb                       = translate_model(load_combination);
 marg(n_var+2,:)                 = [0,  load_comb,  0,  load_comb,  NaN,  NaN,  NaN,  NaN, 0];
 
-probdata.name                   = {probdata.name{:}, 'resi_model', 'load_comb'}'; 
-n_var                           = n_var + 2;
+% option for the resistance formula
+marg(n_var+3,:)                 = [0,  consider_VRmin,  0,  consider_VRmin,  NaN,  NaN,  NaN,  NaN, 0];
+
+probdata.name                   = [probdata.name(:)', {'resi_model'}, {'load_comb'}, {'consider_VRmin'}]'; 
+n_var                           = n_var + 3;
 
 probdata.marg                   = marg;
 

@@ -21,21 +21,22 @@ cellfun(@(x) addpath(genpath(x)), to_path)
 % OPTIONS
 %--------------------------------------------------------------------------
 % Shear resistance model/formula
-% 'ec2_codified_2019', 'ec2_new', 'ec2_proposed_tg4_2016', 'ec2_proposed_yuguang_2019'
-% 'mc2010_level_ii_codified_2019', 'mc2010_new'
-Options.resistance_model    = 'ec2_codified_2019';
-% Options.resistance_model    = 'ec2_proposed_yuguang_2019';
-% Options.resistance_model    = 'ec2_new';
+% Options.resistance_model    = 'ec2_codified_2019';
+% Options.resistance_model    = 'ec2_pre_2021';
+Options.resistance_model    = 'mc2010_level_ii_codified_2019';
+
+Options.consider_VRmin      = true;
+% Options.consider_VRmin      = false;
 
 % Load combination rule/formula
-% 'ec2_simple', 'ec2_advanced'
-Options.load_combination    = 'ec2_simple';
-% Options.load_combination    = 'ec2_advanced';
+% 'ec0_simple', 'ec0_advanced'
+Options.load_combination    = 'ec0_simple';
+% Options.load_combination    = 'ec0_advanced';
 
 % Variable load sets (#load comb would be more descriptive
 % 'traffic', 'snow-wind', 'snow-imposed', 'wind-imposed'
 Options.load_combs          = {'traffic', 'snow_wind', 'snow_imposed', 'wind_imposed'};
-% Options.load_combs          = {'snow_wind'}; 
+% Options.load_combs          = {'snow_wind'};
 % Options.load_combs          = {'traffic', 'wind_imposed'};
 % Options.load_combs          = {'traffic'};
 
@@ -47,8 +48,17 @@ data_dir                    = '../../data/';
 Options.weights_filepath    = fullfile(data_dir, 'load_comb_prevalence_weights.xlsx');
 
 % Target reliability
-% Options.beta_target         = 3.8;
+% Options.beta_target         = 4.2;
 Options.beta_target         = 4.7;
+% Options.beta_target         = 5.2;
+
+% EN 1990, Table B3; action scaler in semi-probabilistic design
+% RC1: beta_target = 4.2; K_FI_repr = 0.9
+% RC2: beta_target = 4.7; K_FI_repr = 1.0
+% RC3: beta_target = 5.2; K_FI_repr = 1.1
+% Options.K_FI_repr           = 0.9;
+Options.K_FI_repr           = 1.0;
+% Options.K_FI_repr           = 1.1;
 
 Options.verbose             = 1;
 
@@ -89,7 +99,7 @@ for i = 1:length(output)
 end
 
 % quick diagnostic plot
-quick_visual_results(Results, Options.beta_target, sprintf('calibrated, gamma_C=%.3f', calibr_par))
+quick_visual_results(Results, Options.beta_target, sprintf('calibrated, gamma_R=%.3f', calibr_par))
 
 % .........................................................................
 % reference with current partial factor
@@ -110,7 +120,7 @@ for i = 1:length(output)
 end
 
 % quick diagnostic plot
-quick_visual_results(Results, Options.beta_target, sprintf('reference, gamma_C=%.3f', calibr_par))
+quick_visual_results(Results, Options.beta_target, sprintf('reference, gamma_R=%.3f', calibr_par))
 
 %--------------------------------------------------------------------------
 % CLEAN UP

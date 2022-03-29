@@ -1,18 +1,19 @@
 %
 %
 
-function [fval, Results, DS] = obj_fun_Ck(x, Prob, Prob_actions, DS, Options)
+function [fval, Results, DS] = obj_fun_theta_Rk(x, Prob, Prob_actions, DS, Options)
 
 % -------------------------------------------------------------------------
 % Initialize
 % -------------------------------------------------------------------------
 verbose                 = Options.verbose;
 P_repr_target           = Options.P_repr_target;
-Prob.C.in_standardized_equation = x;
+Prob.theta_R.repr       = x;
 
-keep_fields = {'C', 'f_cc', 'd', 'b', 'Asl'};
+keep_fields = {'theta_R', 'f_cc', 'd', 'b', 'Asl', 'd_lower', 'a_to_d_ratio'};
 all_fields = fieldnames(Prob);
 remove_fields = setdiff(all_fields, keep_fields);
+
 % -------------------------------------------------------------------------
 % Semi-probabilistic design
 % -------------------------------------------------------------------------
@@ -34,7 +35,7 @@ parfor ii = 1:n_ds
     % keep only the relevant RVs
     Prob_ii = rmfield(Prob_ii, remove_fields);
 
-    [beta(ii),formresults] = run_reli_Ck(Prob_ii, Options);
+    [beta(ii),formresults] = run_reli_theta_Rk(Prob_ii, Options);
     alphas{ii}             = formresults.alpha;
     flag_form(ii)          = formresults.flag;
 end
