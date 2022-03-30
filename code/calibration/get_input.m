@@ -346,7 +346,7 @@ Prob_actions.K_S.P_repr    = NaN;
 Prob_actions.K_S.gamma     = NaN;
 
 % Snow load - factor for combination value... EN1990 terminology [-]
-Prob_actions.psi_S.mean     = 0.7;
+Prob_actions.psi_S.mean     = 0.5;
 Prob_actions.psi_S.cov      = NaN;
 Prob_actions.psi_S.dist     = 0;
 Prob_actions.psi_S.P_repr   = NaN;

@@ -22,7 +22,7 @@ function [Prob, DS] = gen_DS(free_par, Prob, Prob_actions, DS, Options)
 verbose         = Options.verbose;
 
 load_combs      = Options.load_combs;
-n_lc            = length(load_combs);
+n_load_comb     = length(load_combs);
 
 d_ds            = DS.Range.d;
 f_cck_ds        = DS.Range.f_cck;
@@ -34,44 +34,53 @@ a_to_d_ratio_ds = DS.Range.a_to_d_ratio;
 
 % create all possible combinations for the design scenarios (overkill,
 % should be moved outside of the obj_fun)
-combis1         = combvec(d_ds, f_cck_ds, chi1_ds, chi2_ds, rho_ds, d_lower_ds, a_to_d_ratio_ds)';
-[~, ia]         = unique(combis1(:,[1,2,3,5,6,7]), 'rows');
-combis2         = combis1(ia,:);
-combis2(:,4)    = 0;
-combis          = [];
+p_ds_vectors = {chi1_ds, chi2_ds, d_ds, f_cck_ds, rho_ds, d_lower_ds, a_to_d_ratio_ds};
+p_ds_2_actions = cartesian(p_ds_vectors{:});
+
+% to avoid looping over chi2 if there is only one variable action
+% the indices must be harmonized with the position of chi2
+p_ds_1_action   = cartesian(p_ds_vectors{[1, 3:end]});
+% insert zero chi2
+p_ds_1_action = [
+    p_ds_1_action(:,1),...
+    zeros(size(p_ds_1_action,1),1),...
+    p_ds_1_action(:,2:end)
+];
+
+p_ds_all        = [];
 weights         = [];
-load_combs_all  = cell(n_lc*size(combis1,1), 1);
+load_combs_all  = cell(n_load_comb*size(p_ds_2_actions,1), 1);
 
 % this should be solved in a more robust way + create list with the variable load set of design scenarios
-for ii = 1:n_lc
+for ii = 1:n_load_comb
     lc_ii       = load_combs{ii};
     W_b         = DS.Weight.(lc_ii).W;
     Chi1_b      = DS.Weight.(lc_ii).Chi1;
     Chi2_b      = DS.Weight.(lc_ii).Chi2;
     
     if strcmpi(lc_ii, 'traffic')
-       combis_ii = combis2;
-       chi12     = combis_ii(:,3:4);
+       p_ds_ii   = p_ds_1_action;
+       chi12     = p_ds_ii(:,1:2);
        weights_ii= assign_weight(chi12, Chi1_b, Chi2_b, W_b);
     else
-       combis_ii = combis1;
-       chi12     = combis_ii(:,3:4);
+       p_ds_ii   = p_ds_2_actions;
+       chi12     = p_ds_ii(:,1:2);
        weights_ii= assign_weight(chi12, Chi1_b, Chi2_b, W_b);
     end
     
-    loc1 = size(combis,1) + 1;
-    loc2 = loc1 + size(combis_ii,1) - 1;
+    loc1 = size(p_ds_all,1) + 1;
+    loc2 = loc1 + size(p_ds_ii,1) - 1;
     load_combs_all(loc1:loc2) = load_combs(ii);
     
-    combis   = [combis; combis_ii];
+    p_ds_all   = [p_ds_all; p_ds_ii];
     weights  = [weights; weights_ii];  
 end
 
 idx             = cellfun(@isempty, load_combs_all);
 load_combs_all(idx) = []; 
 
-combis_colnames = {'d', 'f_cck', 'chi1', 'chi2', 'rho', 'd_lower', 'a_to_d_ratio'};
-n_ds            = size(combis, 1);
+p_ds_all_colnames = {'chi1', 'chi2', 'd', 'f_cck', 'rho', 'd_lower', 'a_to_d_ratio'};
+n_ds            = size(p_ds_all, 1);
 
 DS.weights_combis = weights;
 
@@ -87,13 +96,13 @@ t_ds = tic;
 for ii = 1:n_ds
     Prob_ii             = Prob_keep;
     
-    d_repr_ii           = combis(ii,1);
-    f_cck_ii            = combis(ii,2);
-    chi1_ii             = combis(ii,3);
-    chi2_ii             = combis(ii,4);
-    rho_repr_ii         = combis(ii,5);
-    d_lower_ii          = combis(ii,6);
-    a_to_d_ratio_ii     = combis(ii,7);
+    chi1_ii             = p_ds_all(ii,1);
+    chi2_ii             = p_ds_all(ii,2);
+    d_repr_ii           = p_ds_all(ii,3);
+    f_cck_ii            = p_ds_all(ii,4);
+    rho_repr_ii         = p_ds_all(ii,5);
+    d_lower_ii          = p_ds_all(ii,6);
+    a_to_d_ratio_ii     = p_ds_all(ii,7);
    
     % concrete compressive strength
     Prob_ii.f_cc.repr   = f_cck_ii;
@@ -130,9 +139,9 @@ end
 %--------------------------------------------------------------------------
 % Collect results
 %--------------------------------------------------------------------------
-DS.combis           = combis;
-DS.combis_colnames  = combis_colnames;
-DS.t_elapsed_sec    = t_elapsed_sec;
-DS.load_combs_all   = load_combs_all;
+DS.p_ds_all           = p_ds_all;
+DS.p_ds_all_colnames  = p_ds_all_colnames;
+DS.t_elapsed_sec      = t_elapsed_sec;
+DS.load_combs_all     = load_combs_all;
 
 end

@@ -9,7 +9,6 @@ function [fval, Results, DS] = obj_fun(x, Prob, Prob_actions, DS, Options)
 % Initialize
 % -------------------------------------------------------------------------
 verbose                 = Options.verbose;
-beta_t                  = Options.beta_target;
 
 % -------------------------------------------------------------------------
 % Semi-probabilistic design
@@ -18,7 +17,7 @@ beta_t                  = Options.beta_target;
 free_par                = x;
 [Prob, DS]              = gen_DS(free_par, Prob, Prob_actions, DS, Options);
 
-n_ds                    = size(DS.combis, 1);
+n_ds                    = size(DS.p_ds_all, 1);
 
 % -------------------------------------------------------------------------
 % Reliability analysis
@@ -60,10 +59,11 @@ end
 % -------------------------------------------------------------------------
 % Objective function
 % -------------------------------------------------------------------------
-%     fval   = trapz(chi_vec, weight.*(beta_t - Beta).^2);
 
-weights = DS.weights_combis;
-fval  = trapz(weights.*(beta_t - beta).^2);
+% beta_t = Options.beta_target;
+% weights = DS.weights_combis;
+% fval  = trapz(weights.*(beta_t - beta).^2);
+fval = weighted_integral(beta, DS, Options);
 
 % -------------------------------------------------------------------------
 % Collect results

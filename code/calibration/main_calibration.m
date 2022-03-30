@@ -60,6 +60,9 @@ Options.beta_target         = 4.7;
 Options.K_FI_repr           = 1.0;
 % Options.K_FI_repr           = 1.1;
 
+Options.objective_function  = 'squared';
+% Options.objective_function  = 'hansen_sorensen';
+
 Options.verbose             = 1;
 
 %--------------------------------------------------------------------------

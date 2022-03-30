@@ -99,9 +99,9 @@ plot(g)
 gp = ggpairs(
   exp_data_df,
   diag=list(continuous="barDiag"),
-  lower=list(continuous = wrap(
+  upper=list(continuous = wrap(
     "points", alpha = 0.3, color="#565656", shape=16)),
-  upper = list(continuous = wrap(ggally_cor, stars = F)),
+  lower = list(continuous = wrap(ggally_cor, stars = F)),
   columnLabels = column_labels2,
   labeller = "label_parsed"
 )
