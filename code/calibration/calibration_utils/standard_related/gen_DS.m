@@ -34,12 +34,19 @@ a_to_d_ratio_ds = DS.Range.a_to_d_ratio;
 
 % create all possible combinations for the design scenarios (overkill,
 % should be moved outside of the obj_fun)
-p_ds_2_actions = cartesian( ...
-    chi1_ds, chi2_ds, d_ds, f_cck_ds, rho_ds, d_lower_ds, a_to_d_ratio_ds ...
-);
-[~, ia]         = unique(p_ds_2_actions(:,[1,3,4,5,6,7]), 'rows');
-p_ds_1_action   = p_ds_2_actions(ia,:);
-p_ds_1_action(:,2) = 0;
+p_ds_vectors = {chi1_ds, chi2_ds, d_ds, f_cck_ds, rho_ds, d_lower_ds, a_to_d_ratio_ds};
+p_ds_2_actions = cartesian(p_ds_vectors{:});
+
+% to avoid looping over chi2 if there is only one variable action
+% the indices must be harmonized with the position of chi2
+p_ds_1_action   = cartesian(p_ds_vectors{[1, 3:end]});
+% insert zero chi2
+p_ds_1_action = [
+    p_ds_1_action(:,1),...
+    zeros(size(p_ds_1_action,1),1),...
+    p_ds_1_action(:,2:end)
+];
+
 p_ds_all        = [];
 weights         = [];
 load_combs_all  = cell(n_load_comb*size(p_ds_2_actions,1), 1);
@@ -72,7 +79,7 @@ end
 idx             = cellfun(@isempty, load_combs_all);
 load_combs_all(idx) = []; 
 
-p_ds_all_colnames = {'d', 'f_cck', 'chi1', 'chi2', 'rho', 'd_lower', 'a_to_d_ratio'};
+p_ds_all_colnames = {'chi1', 'chi2', 'd', 'f_cck', 'rho', 'd_lower', 'a_to_d_ratio'};
 n_ds            = size(p_ds_all, 1);
 
 DS.weights_combis = weights;

@@ -43,6 +43,8 @@ end
 % -------------------------------------------------------------------------
 % Objective function
 % -------------------------------------------------------------------------
+% This formulation is correct until the objective can go down to zero,
+% if that is no longer the case then `weighted_integral` should be used.
 P_repr = normcdf(-beta);
 weights = DS.weights_combis;
 fval  = trapz(weights.*(P_repr_target - P_repr).^2);
