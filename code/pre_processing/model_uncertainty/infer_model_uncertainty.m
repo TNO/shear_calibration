@@ -14,7 +14,7 @@ close all
 clc
 
 % load functions from shared utilities (Matlab...)
-to_path = '..\..\shared_utils\resistance_models\';
+to_path = '..\..\shared_utils\';
 addpath(genpath(to_path))
 
 % =========================================================================
@@ -61,10 +61,9 @@ boolean_string = {'false', 'true'};
 % =========================================================================
 % ESTIMATE parameters
 % =========================================================================
-v1 = shear_formula(fc, Asl, b, d, d_lower, a_to_d_ratio, 1.137, 1, consider_VRmin, 'EN1992-1-1');
-v2 = shear_formula(fc, Asl, b, d, d_lower, a_to_d_ratio, 1.344, 1, consider_VRmin, 'MC2010');
-
-hist(v1./v2)
+% v1 = shear_formula(fc, Asl, b, d, d_lower, a_to_d_ratio, 1.137, 1, consider_VRmin, 'EN1992-1-1');
+% v2 = shear_formula(fc, Asl, b, d, d_lower, a_to_d_ratio, 1.344, 1, consider_VRmin, 'MC2010');
+% hist(v1./v2)
 
 [V_R_1_model, ID]       = shear_formula(fc, Asl, b, d, d_lower, a_to_d_ratio, 1, 1, consider_VRmin, model);
 kappa                   = V_Rexp./V_R_1_model;
