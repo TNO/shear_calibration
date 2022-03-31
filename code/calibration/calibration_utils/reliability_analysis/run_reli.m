@@ -8,7 +8,11 @@
 %NOTES:
 % - vectorized g_fun calls
 
-function [beta, formresults, probdata] = run_reli(Prob, Options)
+function [beta, reli_results, probdata] = run_reli(Prob, Options, method, formresults)
+
+if nargin < 4 && strcmp(method, 'is')
+    error('For Importance sampling (is) `formresults` should be provided.')
+end
 
 % =========================================================================
 % INPUT DATA
@@ -114,10 +118,10 @@ analysisopt.multi_proc           = 1;        % 1: block_size g-calls sent simult
 %    - gfunxxx.m user-specific g-function is used and able to handle block_size computations
 %      sent simultaneously, on a cluster of PCs or any other multiprocessor computer platform.
 % 0: g-calls sent sequentially
-analysisopt.block_size           = 1e6;     % Number of g-calls to be sent simultaneously
+analysisopt.block_size           = 1e4;     % Number of g-calls to be sent simultaneously
 
 % FORM analysis options
-analysisopt.i_max                = 1000;      % Maximum number of iterations allowed in the search algorithm
+analysisopt.i_max                = 500;      % Maximum number of iterations allowed in the search algorithm
 analysisopt.e1                   = 0.01;    % Tolerance on how close design point is to limit-state surface
 analysisopt.e2                   = 0.01;    % Tolerance on how accurately the gradient points towards the origin
 analysisopt.step_code            = 0;        % 0: step size by Armijo rule, otherwise: given value is the step size
@@ -136,12 +140,21 @@ analysisopt.ffdpara_thetag       = 1000;     % Parameter for computation of FFD 
 %analysisopt.form_solver             = 'cobyla';
 
 % Simulation analysis (MC,IS,DS,SS) and distribution analysis options
-analysisopt.num_sim              = 100000;   % Number of samples (MC,IS), number of samples per subset step (SS) or number of directions (DS)
+analysisopt.num_sim              = 1e5;      % Number of samples (MC,IS), number of samples per subset step (SS) or number of directions (DS)
 analysisopt.rand_generator       = 1;        % 0: default rand matlab function, 1: Mersenne Twister (to be preferred)
 
 % Simulation analysis (MC, IS) and distribution analysis options
-analysisopt.sim_point            = 'dspt';  % 'dspt': design point, 'origin': origin in standard normal space (simulation analysis)
+analysisopt.sim_point            = 'dspt';   % 'dspt': design point, 'origin': origin in standard normal space (simulation analysis)
 analysisopt.stdv_sim             = 1;        % Standard deviation of sampling distribution in simulation analysis
+
+% Subset Simulation (SS) analysis options
+analysisopt.width                = 2;        % Width of the proposal uniform pdfs
+analysisopt.pf_target            = 0.1;      % Target probability for each subset step
+analysisopt.flag_cov_pf_bounds   = 1;        % 1: calculate upper and lower bounds of the coefficient of variation of pf
+                                             % 0: no calculation
+analysisopt.ss_restart_from_step = -inf;     % i>=0 : restart from step i
+                                             % -inf : all steps, no record (default)
+                                             % -1 : all steps, record all
 
 % Simulation analysis (MC, IS)
 analysisopt.target_cov           = 0.01;   % Target coefficient of variation for failure probability
@@ -199,27 +212,53 @@ randomfield = [];
 % This function completely determines and updates parameters, mean and standard deviation associated with the distribution of each random variable
 probdata.marg = distribution_parameter(probdata.marg);
 
-% % dist = probdata.marg(:,1);
-% % if any(dist == 33)
-% %     pi
-% % end
-% FORM analysis %
-t_form = tic;
-[formresults, probdata] = form(1, probdata, analysisopt, gfundata, femodel, randomfield);
-t_elapsed_sec = toc(t_form);
+switch method
+    case 'form'
+        % FORM analysis %
+        t_start = tic;
+        [formresults, probdata] = form(1, probdata, analysisopt, gfundata, femodel, randomfield);
+        t_elapsed_sec = toc(t_start);
+        
+        % convergence flag
+        if formresults.iter < analysisopt.i_max
+            formresults.converged = true;
+        else
+            formresults.converged = false;
+        end
+        
+        formresults.t_elapsed = t_elapsed_sec;
+        reli_results = formresults;
+        beta = formresults.beta;
 
-% formresults.nfun
-formresults.t_elapsed = t_elapsed_sec;
-if formresults.iter < analysisopt.i_max
-    formresults.flag = true;
-else
-    formresults.flag = false;
-    keyboard
-end
+    case 'is'
+        % Importance sampling, with FORM dspt
+        analysisopt.formresults = formresults;
+        t_start = tic;
+        [simulationresults, probdata] = simulation_single_dspt(1, probdata, analysisopt, gfundata, femodel, randomfield);
+        t_elapsed_sec = toc(t_start);
+        
+        % convergence flag
+        if simulationresults.cov_pf < analysisopt.target_cov
+            simulationresults.converged = true;
+        else
+            simulationresults.converged = false;
+        end
 
-beta = formresults.beta;
+        simulationresults.t_elapsed = t_elapsed_sec;
+        reli_results = simulationresults;
+        beta = simulationresults.beta;
 
-
+    case 'subset'
+        % Subset simulation:
+        t_start = tic;
+        [subsetsimulationresults, probdata] = subset_simulation(1, probdata, analysisopt, gfundata, femodel, randomfield);
+        t_elapsed_sec = toc(t_start);
+        
+        subsetsimulationresults.t_elapsed = t_elapsed_sec;
+        reli_results = subsetsimulationresults;
+        beta = subsetsimulationresults.beta;
+    otherwise
+        error(['Unknown reliability method: ', method])
 end
 
 

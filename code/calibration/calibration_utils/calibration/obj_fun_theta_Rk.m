@@ -52,10 +52,8 @@ fval  = trapz(weights.*(P_repr_target - P_repr).^2);
 % -------------------------------------------------------------------------
 % Collect results
 % -------------------------------------------------------------------------
-if verbose == 0
-   Results.alphas = alphas;
-end
+Results.alphas = alphas;
 Results.beta            = beta;
-Results.flag_form       = flag_form;
+Results.converged       = flag_form;
 
 end
