@@ -31,6 +31,12 @@ Prob                        = orderfields(Prob, rv_order);
 var_names                   = fieldnames(Prob);
 n_var                       = length(var_names);
 
+% e.g. if VRmin and VRbase are both considered in the EC2 model than that
+% more than one branch; the reliability method is adjusted based on this
+% boolean variable (see below the limit state functiond definition).
+more_than_one_resistance_branch = ...
+    any(strcmpi(resistance_model, {'ec2_codified_2019'})) && consider_VRmin == true;
+
 % =========================================================================
 % FERUM
 % =========================================================================
@@ -88,9 +94,9 @@ load_comb                       = translate_model(load_combination);
 marg(n_var+2,:)                 = [0,  load_comb,  0,  load_comb,  NaN,  NaN,  NaN,  NaN, 0];
 
 % option for the resistance formula
-marg(n_var+3,:)                 = [0,  consider_VRmin,  0,  consider_VRmin,  NaN,  NaN,  NaN,  NaN, 0];
+% marg(n_var+3,:)                 = [0,  consider_VRmin,  0,  consider_VRmin,  NaN,  NaN,  NaN,  NaN, 0];
 
-probdata.name                   = [probdata.name(:)', {'resi_model'}, {'load_comb'}, {'consider_VRmin'}]'; 
+probdata.name                   = [probdata.name(:)', {'resi_model'}, {'load_comb'}]'; 
 n_var                           = n_var + 3;
 
 probdata.marg                   = marg;
@@ -169,26 +175,60 @@ analysisopt.lowRAM               = 0;        % 1: memory savings allowed, 0: no 
 %          using gfundata(lsf).expression. The function gfun.m calls gfunbasic.m, which evaluates gfundata(lsf).expression.
 % 'xxx':   the limit-state function evaluation requires a call to an external code.  The function gfun.m calls gfunxxx.m,
 %          which evaluates gfundata(lsf).expression where gext variable is a result of the external code.
-gfundata(1).evaluator           = 'basic';
-gfundata(1).type                = 'expression';   % Do not change this field!
 
-% Expression of the limit-state function:
+if more_than_one_resistance_branch == true
+    % .....................................................................
+    % LSF1: only VRbase is considered
+    % .....................................................................
+    consider_VRbase_lsf = true;
+    consider_VRmin_lsf = false;
+    
+    gfundata(1).evaluator           = 'basic';
+    gfundata(1).type                = 'expression';   % Do not change this field!
+    
+    arg                             = sprintf('%s,', probdata.name{:});
+    
+    gfundata(1).expression          = [
+        'g_fun(', arg, num2str(consider_VRmin_lsf), ',', ...
+        num2str(consider_VRbase_lsf) ,')'];
+    
+    gfundata(1).thetag              = [];
+    gfundata(1).thetagname          = {};
+    % Flag for computation of sensitivities w.r.t. thetag parameters of 
+    % the limit-state function
+    % 1: all sensitivities assessed, 0: no sensitivities assessment
+    gfundata(1).flag_sens           = 0;
+    
+    % .....................................................................
+    % LSF2: only VRmin is not considered
+    % .....................................................................
+    consider_VRbase_lsf = false;
+    consider_VRmin_lsf = true;
+    
+    gfundata(2) = gfundata(1);
+    gfundata(2).expression          = [
+        'g_fun(', arg, num2str(consider_VRmin_lsf), ',', ...
+        num2str(consider_VRbase_lsf) ,')'];
 
+else
+    consider_VRbase_lsf             = true;
 
-% gfundata(1).expression = 'gfun_diana(fcc, Ec)';
-arg                             = sprintf('%s,', probdata.name{:});
-arg(end)                        = [];
+    gfundata(1).evaluator           = 'basic';
+    gfundata(1).type                = 'expression';   % Do not change this field!
+    
+    arg                             = sprintf('%s,', probdata.name{:});
+    
+    gfundata(1).expression          = [
+        'g_fun(', arg, num2str(consider_VRmin), ',', ...
+        num2str(consider_VRbase_lsf) ,')'];
 
-gfundata(1).expression          = ['g_fun(',arg, ')'];
-
-
-gfundata(1).thetag              =  [];
-gfundata(1).thetagname          = { };
-
-
-% Flag for computation of sensitivities w.r.t. thetag parameters of the limit-state function
-% 1: all sensitivities assessed, 0: no sensitivities assessment
-gfundata(1).flag_sens           = 0;
+    gfundata(1).thetag              = [];
+    gfundata(1).thetagname          = {};
+    % Flag for computation of sensitivities w.r.t. thetag parameters of 
+    % the limit-state function
+    % 1: all sensitivities assessed, 0: no sensitivities assessment
+    gfundata(1).flag_sens           = 0;
+end
 
 % -------------------------------------------------------------------------
 %  DATA FIELDS IN 'FEMODEL'
@@ -203,35 +243,115 @@ femodel = [];
 randomfield = [];
 
 % -------------------------------------------------------------------------
-% FORM ANALYSIS
+% RELIABILITY ANALYSIS
 % -------------------------------------------------------------------------
-
-% This function updates probdata and gfundata before any analysis (must be run only once)
-[probdata, gfundata, analysisopt] = update_data(1, probdata, analysisopt, gfundata, []);
-
-% This function completely determines and updates parameters, mean and standard deviation associated with the distribution of each random variable
-probdata.marg = distribution_parameter(probdata.marg);
 
 switch method
     case 'form'
-        % FORM analysis %
-        t_start = tic;
-        [formresults, probdata] = form(1, probdata, analysisopt, gfundata, femodel, randomfield);
-        t_elapsed_sec = toc(t_start);
-        
-        % convergence flag
-        if formresults.iter < analysisopt.i_max
-            formresults.converged = true;
+        % FORM analysis
+        if more_than_one_resistance_branch == true
+            % .............................................................
+            % LSF1
+            % .............................................................
+            % This function updates probdata and gfundata before any analysis (must be run only once)
+            [probdata_1, gfundata_1, analysisopt_1] = update_data(1, probdata, analysisopt, gfundata(1), []);
+
+            % This function completely determines and updates parameters, mean and standard deviation associated with the distribution of each random variable
+            probdata_1.marg = distribution_parameter(probdata_1.marg);
+
+            t_start = tic;
+            [formresults_1, probdata_1] = form( ...
+                1, probdata_1, analysisopt_1, gfundata_1, femodel, randomfield);
+            t_1_elapsed_sec = toc(t_start);
+            
+            % .............................................................
+            % LSF2
+            % .............................................................
+            % This function updates probdata and gfundata before any analysis (must be run only once)
+            [probdata_2, gfundata_2, analysisopt_2] = update_data(1, probdata, analysisopt, gfundata(2), []);
+
+            % This function completely determines and updates parameters, mean and standard deviation associated with the distribution of each random variable
+            probdata_2.marg = distribution_parameter(probdata_2.marg);
+
+            t_start = tic;
+            [formresults_2, probdata_2] = form(1, probdata_2, analysisopt_2, gfundata_2, femodel, randomfield);
+            t_2_elapsed_sec = toc(t_start);
+
+            t_elapsed_sec = t_1_elapsed_sec + t_2_elapsed_sec;
+
+            % .............................................................
+            % Parallel system
+            % .............................................................
+            beta_1 = formresults_1.beta;
+            beta_2 = formresults_2.beta;
+            alpha_1 = formresults_1.alpha;
+            alpha_2 = formresults_2.alpha;
+            
+            % correlation coefficient between the two failures (limit states)
+            rho = alpha_1' * alpha_2;
+
+            Pf_s = mvncdf(-[beta_1, beta_2], [0, 0], [1, rho; rho, 1]);
+            beta_s = norminv(1 - Pf_s);
+
+            % return the `formresults` of the limit state with the larger
+            % (governing) reliability index: 
+            %  - keep its alpha value as an approximation;
+            %  - replace its beta (Pf) with the system beta (Pf)
+            %  - replace its convergence flag with the combined convergence
+            %    of both FORM analyses
+            if beta_1 > beta_2
+                formresults = formresults_1;
+                probdata = probdata_1;
+            else
+                formresults = formresults_2;
+                probdata = probdata_2;
+            end
+
+            formresults.beta = beta_s;
+            formresults.pf1 = Pf_s;
+
+            % convergence flag
+            if formresults_1.iter < analysisopt.i_max && formresults_2.iter < analysisopt.i_max
+                formresults.converged = true;
+            else
+                formresults.converged = false;
+            end
+
         else
-            formresults.converged = false;
+            % This function updates probdata and gfundata before any analysis (must be run only once)
+            [probdata, gfundata, analysisopt] = update_data(1, probdata, analysisopt, gfundata, []);
+
+            % This function completely determines and updates parameters, mean and standard deviation associated with the distribution of each random variable
+            probdata.marg = distribution_parameter(probdata.marg);
+
+            t_start = tic;
+            [formresults, probdata] = form(1, probdata, analysisopt, gfundata, femodel, randomfield);
+            t_elapsed_sec = toc(t_start);
+            
+            % convergence flag
+            if formresults.iter < analysisopt.i_max
+                formresults.converged = true;
+            else
+                formresults.converged = false;
+            end
         end
         
+        % collect results
         formresults.t_elapsed = t_elapsed_sec;
         reli_results = formresults;
         beta = formresults.beta;
 
     case 'is'
-        % Importance sampling, with FORM dspt
+        % .................................................................
+        % Importance sampling with FORM dspt
+        % .................................................................
+
+        % This function updates probdata and gfundata before any analysis (must be run only once)
+        [probdata, gfundata, analysisopt] = update_data(1, probdata, analysisopt, gfundata, []);
+
+        % This function completely determines and updates parameters, mean and standard deviation associated with the distribution of each random variable
+        probdata.marg = distribution_parameter(probdata.marg);
+
         analysisopt.formresults = formresults;
         t_start = tic;
         [simulationresults, probdata] = simulation_single_dspt(1, probdata, analysisopt, gfundata, femodel, randomfield);
@@ -249,7 +369,16 @@ switch method
         beta = simulationresults.beta;
 
     case 'subset'
-        % Subset simulation:
+        % .................................................................
+        % Subset simulation
+        % .................................................................
+
+        % This function updates probdata and gfundata before any analysis (must be run only once)
+        [probdata, gfundata, analysisopt] = update_data(1, probdata, analysisopt, gfundata, []);
+
+        % This function completely determines and updates parameters, mean and standard deviation associated with the distribution of each random variable
+        probdata.marg = distribution_parameter(probdata.marg);
+
         t_start = tic;
         [subsetsimulationresults, probdata] = subset_simulation(1, probdata, analysisopt, gfundata, femodel, randomfield);
         t_elapsed_sec = toc(t_start);

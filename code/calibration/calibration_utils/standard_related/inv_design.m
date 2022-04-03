@@ -73,7 +73,8 @@ psi02               = Prob.psi02.mean;
 switch lower(resistance_model)
     case 'ec2_codified_2019'
         gamma_R = free_par(1);
-        VR      = EC2_codified_2019(f_cc, Asl, b, d, theta_R, gamma_R, consider_VRmin);
+        consider_VRbase = true;
+        VR      = EC2_codified_2019(f_cc, Asl, b, d, theta_R, gamma_R, consider_VRmin, consider_VRbase);
     case 'ec2_pre_2021'
         gamma_R = free_par(1);
         VR      = EC2_pre_2021(f_cc, Asl, b, d, d_lower, a_to_d_ratio, theta_R, gamma_R, consider_VRmin);

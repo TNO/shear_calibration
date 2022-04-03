@@ -6,7 +6,6 @@ function [fval, Results, DS] = obj_fun_theta_Rk(x, Prob, Prob_actions, DS, Optio
 % -------------------------------------------------------------------------
 % Initialize
 % -------------------------------------------------------------------------
-verbose                 = Options.verbose;
 P_repr_target           = Options.P_repr_target;
 Prob.theta_R.repr       = x;
 
@@ -28,7 +27,7 @@ n_ds                    = size(DS.p_ds_all, 1);
 % -------------------------------------------------------------------------
 beta                    = nan(n_ds,1);
 alphas                  = cell(n_ds,1);
-flag_form               = false(n_ds,1);
+converged               = false(n_ds,1);
 parfor ii = 1:n_ds
 % for ii = 1:n_ds
     Prob_ii                = Prob(ii);
@@ -37,23 +36,31 @@ parfor ii = 1:n_ds
 
     [beta(ii),formresults] = run_reli_theta_Rk(Prob_ii, Options);
     alphas{ii}             = formresults.alpha;
-    flag_form(ii)          = formresults.flag;
+    converged(ii)          = formresults.converged;
+
+    if formresults.converged == 0
+        error('FORM did not converge.')
+    end
 end
 
 % -------------------------------------------------------------------------
 % Objective function
 % -------------------------------------------------------------------------
-% This formulation is correct until the objective can go down to zero,
-% if that is no longer the case then `weighted_integral` should be used.
-P_repr = normcdf(-beta);
-weights = DS.weights_combis;
-fval  = trapz(weights.*(P_repr_target - P_repr).^2);
+% The commented out formulation is correct until the objective goes down
+% to zero, if that is no longer the case then `weighted_integral` 
+% should be used.
+% P_repr = normcdf(-beta);
+% weights = DS.weights_combis;
+% fval  = trapz(weights.*(P_repr_target - P_repr).^2);
+Options.beta_target = -norminv(P_repr_target);
+Options.objective_function = "squared";
+fval = weighted_integral(beta, DS, Options);
 
 % -------------------------------------------------------------------------
 % Collect results
 % -------------------------------------------------------------------------
 Results.alphas = alphas;
 Results.beta            = beta;
-Results.converged       = flag_form;
+Results.converged       = converged;
 
 end

@@ -34,13 +34,14 @@ parfor ii = 1:n_ds
     converged(ii)          = formresults.converged;
 
     if formresults.converged == 0
-        [beta(ii), simulationresults] = run_reli(Prob_ii, Options, 'is', formresults);
-        
-        if simulationresults.converged == 1 && verbose > 1
-            disp('Importance sampling has converged with the last step of not converged FORM.')
-        end
-        alphas{ii}             = nan(size(formresults.alpha));
-        converged(ii)          = simulationresults.converged;
+        error('FORM did not converge.')
+%         [beta(ii), simulationresults] = run_reli(Prob_ii, Options, 'is', formresults);
+%         
+%         if simulationresults.converged == 1 && verbose > 1
+%             disp('Importance sampling has converged with the last step of not converged FORM.')
+%         end
+%         alphas{ii}             = nan(size(formresults.alpha));
+%         converged(ii)          = simulationresults.converged;
     end
     
 end

@@ -55,7 +55,6 @@ chi2_ds         = 0.1:0.1:0.9;
 % reinforcement ratio - with nominal values
 % rho_ds              = [0.005, 0.010, 0.015];
 % rho_ds              = [0.005, 0.010];
-% rho_ds          = [0.008, 0.012];
 rho_ds          = 0.01;
 
 % size of the maximum sieve gird used for aggregates
@@ -131,7 +130,9 @@ switch lower(resistance_model)
             Prob.theta_R.mean   = 1.13688;
             Prob.theta_R.cov    = 0.23777;
 %             Prob.theta_R.repr   = 1.0; % codified value
-            Prob.theta_R.repr   = 0.81707; % to obtain characteristics value (5%) for V_Rc
+%             Prob.theta_R.repr   = 0.81707; % to obtain characteristics value (5%) for V_Rc
+            Prob.theta_R.repr   = 0.84525; % to obtain characteristics value (5%) for V_Rc with all relevant DSs
+%             Prob.theta_R.repr   = 0.84605; % to obtain characteristics value (5%) for V_Rc with the illustrative set of DSs
         else
             Prob.theta_R.mean   = 1.13750;
             Prob.theta_R.cov    = 0.23760;
