@@ -31,18 +31,11 @@ function [VR, ID] = MC2010_level_II_codified_2019(fc, Asl, b, d, d_lower, a_to_d
 % -------------------------------------------------------------------------
 % Initialize
 % -------------------------------------------------------------------------
-% TODO: make it more general and robust
+[fc, Asl, b, d, d_lower, a_to_d_ratio, theta_R, gamma_R] = ...
+    equalize_vector_lengths( ...
+        fc, Asl, b, d, d_lower, a_to_d_ratio, theta_R, gamma_R ...
+    );
 n = length(fc);
-
-if length(d_lower) == 1
-    d_lower = d_lower * ones(size(fc));
-end
-if length(a_to_d_ratio) == 1
-    a_to_d_ratio = a_to_d_ratio * ones(size(fc));
-end
-if length(theta_R) == 1
-    theta_R = theta_R * ones(size(fc));
-end
 
 % -------------------------------------------------------------------------
 % MC2010 - level II, according to par. 7.3.3.2
@@ -71,7 +64,7 @@ for ii = 1:n
     epsx  = @(V) epsx_fun(V, a(ii), z(ii), Asl(ii));
     % eq. (7.3-21)
     kv     = @(V) (0.4 / (1 + (1500 * epsx(V)))) * (1300 / (1000 + (kdg(ii) * z(ii))));
-    VR_    = fzero(@(V) (theta_R(ii) * kv(V) * (min(sqrt(fc(ii)), 8) / gamma_R) * b(ii) * z(ii)) - V, V0);
+    VR_    = fzero(@(V) (theta_R(ii) * kv(V) * (min(sqrt(fc(ii)), 8) / gamma_R(ii)) * b(ii) * z(ii)) - V, V0);
     VR(ii) = 1.0 * VR_;
 end
 VR          = 1e-3 .* VR;
