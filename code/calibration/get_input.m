@@ -112,6 +112,9 @@ for ii = 1:n_lc
     DS.Weight.(lc_ii).Chi2  = Chi2q_ii;
 end 
 
+% drop DS discretizations that are not relevant for the selected resistance
+% model
+DS = update_DS(DS, Options);
 
 % =========================================================================
 % PROBABILISTIC MODEL
