@@ -5,7 +5,7 @@
 % fzero is an overkill but at least it can accomodate more general formats
 
 
-function Prob = inv_design(free_par, fix_par, Prob, Prob_actions, Options, load_comb_ii)
+function [Prob, VR] = inv_design(free_par, fix_par, Prob, Prob_actions, Options, load_comb_ii)
 %function [Prob,VR] = inv_design(free_par, fix_par, Prob, Options)    
 
 % -------------------------------------------------------------------------
