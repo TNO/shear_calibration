@@ -34,7 +34,7 @@ switch lower(output)
         writetable(T, tpath)
         
     case 'alpha'
-        rvs  = {'theta_R', 'f_cck', 'd', 'b', 'rho_s', 'G', 'theta_G', 'Q1', 'theta_Q1', 'Q2', 'theta_Q2', 'theta_E'};
+        rvs  = {'theta_R', 'f_c', 'd', 'b', 'A_sl', 'G', 'theta_G', 'Q1', 'theta_Q1', 'Q2', 'theta_Q2', 'theta_E'};
         cols = length(rvs);
         rows = length(Results.alphas);
         
@@ -63,23 +63,7 @@ switch lower(output)
         a_to_d_ratio_r   = repmat(a_to_d_ratio, cols, 1);
         weight_r    = repmat(weight,cols,1);
 
-        T        = table(alpha2_r, alpha_r, alpha_labels, load_comb_r, d_r, f_cck_r, chi1_r, chi2_r, rho_r, d_lower_r, a_to_d_ratio_r, weight_r);        
-       
-%         alpha2_C   = alpha2(:,1);
-%         alpha2_fcc = alpha2(:,2);
-%         alpha2_d   = alpha2(:,3);
-%         alpha2_b   = alpha2(:,4);
-%         alpha2_rho = alpha2(:,5);
-%         alpha2_G   = alpha2(:,6);
-%         alpha2_KG  = alpha2(:,7);
-%         alpha2_Q1  = alpha2(:,8);
-%         alpha2_KQ1 = alpha2(:,9);
-%         alpha2_Q2  = alpha2(:,10);
-%         alpha2_KQ2 = alpha2(:,11);
-        
-%         T       = table(alpha2_C, alpha2_fcc, alpha2_d, alpha2_b, alpha2_rho, ...
-%                         alpha2_G, alpha2_KG, alpha2_Q1, alpha2_KQ1, alpha2_Q2, ...
-%                         alpha2_KQ2, load_comb, d, f_cck, chi1, chi2, rho, weight);
+        T        = table(alpha2_r, alpha_r, alpha_labels, load_comb_r, d_r, f_cck_r, chi1_r, chi2_r, rho_r, d_lower_r, a_to_d_ratio_r, weight_r);
         
         tpath   = ['./results/alpha2_', fname, '.csv'];
         writetable(T, tpath)

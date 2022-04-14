@@ -4,7 +4,7 @@
 % [parm_hat, objfun_val, exitflag] = CALIBRATE(Prob, Options)
 %
 
-function [calibr_par, objfun_val, exitflag] = calibrate(Prob, Prob_actions, DS, Options)
+function [calibr_par, objfun_val, exitflag, output] = calibrate(Prob, Prob_actions, DS, Options)
 
 verbose = Options.verbose;
 
@@ -27,7 +27,7 @@ x0              = 1.3;
 % x       = fminsearch(@(x) obj_fun(x, Prob, Options), x0, opt);
 lb              = 0.5;
 ub              = 3;
-[x, fval, exitflag]  = fmincon(@(x) obj_fun(x, Prob, Prob_actions, DS, Options), x0, [],[],[],[],lb,ub,[],opt);
+[x, fval, exitflag, output]  = fmincon(@(x) obj_fun(x, Prob, Prob_actions, DS, Options), x0, [],[],[],[],lb,ub,[],opt);
 
 calibr_par      = x;
 objfun_val      = fval;

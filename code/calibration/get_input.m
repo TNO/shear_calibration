@@ -55,7 +55,6 @@ chi2_ds         = 0.1:0.1:0.9;
 % reinforcement ratio - with nominal values
 % rho_ds              = [0.005, 0.010, 0.015];
 % rho_ds              = [0.005, 0.010];
-% rho_ds          = [0.008, 0.012];
 rho_ds          = 0.01;
 
 % size of the maximum sieve gird used for aggregates
@@ -112,6 +111,9 @@ for ii = 1:n_lc
     DS.Weight.(lc_ii).Chi2  = Chi2q_ii;
 end 
 
+% drop DS discretizations that are not relevant for the selected resistance
+% model
+DS = update_DS(DS, Options);
 
 % =========================================================================
 % PROBABILISTIC MODEL
@@ -128,7 +130,8 @@ switch lower(resistance_model)
             Prob.theta_R.mean   = 1.13688;
             Prob.theta_R.cov    = 0.23777;
 %             Prob.theta_R.repr   = 1.0; % codified value
-            Prob.theta_R.repr   = 0.81707; % to obtain characteristics value (5%) for V_Rc
+%             Prob.theta_R.repr   = 0.84679; % to obtain characteristics value (5%) for V_Rc with all relevant DSs
+            Prob.theta_R.repr   = 0.84604; % to obtain characteristics value (5%) for V_Rc with the illustrative (reduced) set of DSs
         else
             Prob.theta_R.mean   = 1.13750;
             Prob.theta_R.cov    = 0.23760;
@@ -146,7 +149,9 @@ switch lower(resistance_model)
     case 'mc2010_level_ii_codified_2019'
         Prob.theta_R.mean   = 1.34439;
         Prob.theta_R.cov    = 0.19243;
-        Prob.theta_R.repr   = 1.07920; % to obtain characteristics value (5%) for V_Rc
+%         Prob.theta_R.repr   = 0.96329; % to obtain characteristics value (5%) for V_Rc with all relevant DSs
+%         Prob.theta_R.repr   = 1.07545; % to obtain characteristics value (5%) for V_Rc with all relevant DSs but only fc = [20, 40]
+        Prob.theta_R.repr   = 1.07921; % to obtain characteristics value (5%) for V_Rc with the illustrative (reduced) set of DSs
 
         Prob.theta_R.std    = NaN;
         Prob.theta_R.dist   = 2;
