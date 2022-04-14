@@ -86,6 +86,8 @@ DS.weights_combis = weights;
 
 Prob_keep       = Prob;
 
+VR = zeros(n_ds, 1);
+
 %--------------------------------------------------------------------------
 % Semi-probabilistic design & save the design scenarios
 %--------------------------------------------------------------------------
@@ -125,8 +127,9 @@ for ii = 1:n_ds
 
     fix_par             = [chi1_ii, chi2_ii];
     
-    Prob_ii             = inv_design(free_par, fix_par, Prob_ii, Prob_actions, Options, load_combs_all{ii});
+    [Prob_ii, VR_ii]    = inv_design(free_par, fix_par, Prob_ii, Prob_actions, Options, load_combs_all{ii});
     Prob(ii)            = Prob_ii;
+    VR(ii)              = VR_ii;
 end
 t_elapsed_sec = toc(t_ds);
 
@@ -143,5 +146,6 @@ DS.p_ds_all           = p_ds_all;
 DS.p_ds_all_colnames  = p_ds_all_colnames;
 DS.t_elapsed_sec      = t_elapsed_sec;
 DS.load_combs_all     = load_combs_all;
+DS.VR                 = VR;
 
 end
