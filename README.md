@@ -1,11 +1,10 @@
-# shear_calibration
+# Shear formula calibration
 
-Reliability-based calibration of Eurocode and _fib_ Model Code shear resistance formulas.
+Reliability-based calibration of Eurocode-2 and _fib_ Model Code shear resistance formulas.
 
 <img src="https://drive.google.com/uc?export=view&id=1FSc6EjO-gDQ_jwg3CR89--X43iJCHAFR" alt="beta_plot" width="500"/>
-https://drive.google.com/file/d//view?usp=sharing
 
-- Supporting code to the paper: Slobbe A., Rozsas A., Yuguang Y. () A reliability-based calibration of shear resistance formulas for reinforced concrete members without shear reinforcement (under review).
+- Supporting code to the paper: Slobbe A., Rozsas A., Yuguang Y. () A reliability-based calibration of shear resistance formulas for reinforced concrete members without shear reinforcement (_under review_).
 - Mixing Matlab, Python, and R due to time constraints.
 - If you have a question related to the code please open an issue.
 
