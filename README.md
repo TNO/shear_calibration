@@ -1,22 +1,19 @@
 # shear_calibration
 
-Reliability-based calibration of shear resistance formulas.
+Reliability-based calibration of Eurocode and _fib_ Model Code shear resistance formulas.
 
+<img src="https://drive.google.com/uc?export=view&id=1FSc6EjO-gDQ_jwg3CR89--X43iJCHAFR" alt="beta_plot" width="500"/>
+https://drive.google.com/file/d//view?usp=sharing
 
-- mixing Matlab, Python, and R was due to time constraints 
-- using a custom FERUM in a shared folder (not under version control) was also due to time constraints
+- Supporting code to the paper: Slobbe A., Rozsas A., Yuguang Y. () A reliability-based calibration of shear resistance formulas for reinforced concrete members without shear reinforcement (under review).
+- Mixing Matlab, Python, and R due to time constraints.
+- If you have a question related to the code please open an issue.
 
-| Project name     | KIP Beton 2020 |
-| ---------------- | ------ |
-| Project manager  |  |
-| Project number   | 060.43033/01.03  |
-| Project budget   |  |
-| Project website  |  |
 
 ## Dependencies
 
 Matlab:
- - developed under Matlab 2021b (mostly under 2018b)
+ - developed under Matlab 2021b (earlier under 2018b)
  	* Statistics and Machine Learning Toolbox
  	* Optimization Toolbox
  	* Global Optimization Toolbox
@@ -27,7 +24,6 @@ Matlab:
  	* [Statistics---Matlab](https://github.com/rozsasarpi/Statistics---Matlab): the content of the `distribution_functions\univariate\` folder
  	* [Plotting-Matlab](https://github.com/rozsasarpi/Plotting-Matlab): the content of the `distribution_functions\univariate\` folder (used to make prettier plots, non-essential)
  	* [export_fig](https://www.mathworks.com/matlabcentral/fileexchange/23629-export_fig)
-
 
 
 ----
@@ -114,7 +110,8 @@ If action (wind and snow) random variable inputs change:
 
   ## Improvement ideas
 
-  * 
+  * improve documentaton
+  * implement everything in one language (probably python would be the best choice)
 
 </details>
 
